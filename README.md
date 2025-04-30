@@ -1,6 +1,6 @@
 # Express Typescript PostgreSQL Starter
 
-A robust starter template for building REST APIs using Express.js, PostgreSQL, Prisma ORM, and TypeScript.
+A robust Review Product portal server for building REST APIs using Express.js, PostgreSQL, Prisma ORM, and TypeScript.
 
 ## Features
 
