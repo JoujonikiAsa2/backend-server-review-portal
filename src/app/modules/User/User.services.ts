@@ -38,6 +38,20 @@ const registerUserIntoDB = async (payload: TUser) => {
   return result;
 };
 
+const GetAllUsersFromDB = async () => {
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      role: true,
+      createdAt: true,
+    },
+  });
+  return users;
+};
+
 export const UserServices = {
   registerUserIntoDB,
+  GetAllUsersFromDB,
 };

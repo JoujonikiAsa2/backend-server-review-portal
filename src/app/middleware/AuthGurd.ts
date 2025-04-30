@@ -5,7 +5,7 @@ import config from "../../config";
 import { Secret } from "jsonwebtoken";
 import status from "http-status";
 
-const auth = (...roles: string[]) => {
+const AuthGurd = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
@@ -14,14 +14,11 @@ const auth = (...roles: string[]) => {
 
       const verifiedUser = jwtHelpers.verifyToken(
         token,
-        config.jwt.jwt_secret as Secret
+        config.jwt.access_token_secret as Secret
       );
-
       req.user = verifiedUser;
-
-      if (roles.length && !roles.includes(verifiedUser.role))
-        throw new ApiError(403, "Forbidden");
-
+      if (roles.length && !roles.includes(verifiedUser.userRole.toUpperCase()))
+        throw new ApiError(status.FORBIDDEN, "You are not authorized");
       next();
     } catch (error) {
       next(error);
@@ -29,4 +26,4 @@ const auth = (...roles: string[]) => {
   };
 };
 
-export default auth;
+export default AuthGurd;
