@@ -1,0 +1,84 @@
+{
+	"info": {
+		"_postman_id": "0ed871ae-c6a8-44ee-840d-f36a9c1d005d",
+		"name": "Portal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "43564593",
+		"_collection_link": "https://alpha7-4517.postman.co/workspace/90bf89b1-2dec-48b6-871f-7281130ed86c/collection/43564593-0ed871ae-c6a8-44ee-840d-f36a9c1d005d?action=share&source=collection_link&creator=43564593"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "PeerVibe",
+			"value": "http://localhost:5000/api/v1/",
+			"type": "string"
+		},
+		{
+			"key": "USER_TOKEN",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ADMIN_TOKEN",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiRmFobXVkdWwiLCJlbWFpbCI6ImZhaG11ZHVsMjM0QGdtYWlsLmNvbSIsInVzZXJSb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDYwNDkyODUsImV4cCI6MTc0NjEzNTY4NX0.AvuDL239-paDUs2Wd2HVi6pa8C7kXpU3VzUn9NitlKw",
+			"type": "string"
+		}
+	]
+}

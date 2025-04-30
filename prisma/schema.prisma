@@ -8,17 +8,101 @@ datasource db {
 }
 
 model User {
+  id                    String                  @id @default(uuid())
+  name                  String
+  email                 String                  @unique
+  password              String
+  role                  UserRole                @default(USER)
+  imageUrl              String?
+  isPremium             Boolean                 @default(false)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  Review                Review[]
+  Comment               Comment[]
+  PremiumPurchaseReview PremiumPurchaseReview[]
+  Payment               Payment[]
+
+  @@map("users")
+}
+
+model Review {
+  id                    String                  @id @default(uuid())
+  userId                String
+  category              Category
+  user                  User                    @relation(fields: [userId], references: [id])
+  upVotes               Int                     @default(0)
+  downVotes             Int                     @default(0)
+  isPremium             Boolean                 @default(false)
+  RatingSummary         RatingSummary?
+  Comment               Comment[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  PremiumPurchaseReview PremiumPurchaseReview[]
+
+  @@map("reviews")
+}
+
+model RatingSummary {
+  id         String @id @default(uuid())
+  reviewId   String @unique
+  review     Review @relation(fields: [reviewId], references: [id])
+  oneStar    Int    @default(0)
+  twoStars   Int    @default(0)
+  threeStars Int    @default(0)
+  fourStars  Int    @default(0)
+  fiveStars  Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PremiumPurchaseReview {
   id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      UserRole @default(USER)
-  imageUrl  String?
-  isPremium Boolean  @default(false)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id])
+  paymentId String   @unique
+  payment   Payment  @relation(fields: [paymentId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("users")
+  @@unique([userId, reviewId])
+  @@map("premium_purchase_reviews")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  reviewId  String
+  review    Review   @relation(fields: [reviewId], references: [id])
+
+  @@map("comments")
+}
+
+model Payment {
+  id                    String                 @id @default(uuid())
+  userId                String
+  user                  User                   @relation(fields: [userId], references: [id])
+  amount                Float
+  paymentMethod         String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+  PremiumPurchaseReview PremiumPurchaseReview?
+
+  @@map("payments")
+}
+
+enum Category {
+  MOVIE
+  TV_SHOW
+  BOOK
+  ELECTRONICS
+  VEHICLE
 }
 
 enum UserRole {
