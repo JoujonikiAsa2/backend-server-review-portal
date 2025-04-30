@@ -8,7 +8,7 @@ import { UserSchemas } from "./User.ZodValidations";
 const router = express.Router();
 
 router.post(
-  "/register",
+  "/create",
   validateRequest(UserSchemas.userCreationSchema),
   UserControllers.registerUser
 );

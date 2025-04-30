@@ -1,11 +1,13 @@
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 
-const generateToken = (payload: any, secret: Secret, expiresIn: string) => {
-  const token = jwt.sign(payload, secret, {
-    algorithm: "HS256",
-    expiresIn,
+export const generateToken = async (
+  payload: any,
+  secret: string,
+  tokenType: string
+) => {
+  const token = await jwt.sign(payload!, secret!, {
+    expiresIn: tokenType === "access" ? "1d" : "30d",
   });
-
   return token;
 };
 
