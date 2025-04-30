@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import catchAsync from "../../shared/catchAsync";
-import { AuthServices } from "./auth.services";
+import { AuthServices } from "./Auth.services";
 import sendResponse from "../../shared/sendResponse";
 
 const login = catchAsync(async (req: Request, res: Response) => {

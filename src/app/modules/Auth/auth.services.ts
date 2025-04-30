@@ -7,7 +7,7 @@ import prisma from "../../shared/prisma";
 import bcrypt from "bcrypt";
 
 type TLogin = {
-  email: string;
+  email: string;    
   password: string;
 };
 

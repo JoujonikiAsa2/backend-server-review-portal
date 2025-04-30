@@ -3,27 +3,17 @@ import ApiError from "../errors/ApiError";
 import { jwtHelpers } from "../../helpers/jwtHelpers";
 import config from "../../config";
 import { Secret } from "jsonwebtoken";
+import status from "http-status";
 
 const auth = (...roles: string[]) => {
-  return async (
-    req: Request & { user?: any },
-    res: Response,
-    next: NextFunction
-  ) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const token = req.headers.authorization;
 
-      if (!token) throw new ApiError(401, "You are not authorized");
-
-      // Extract the token from Bearer scheme
-      const tokenWithoutBearer = token.split(" ")[1];
-
-      if (!tokenWithoutBearer) {
-        throw new ApiError(401, "Invalid token format");
-      }
+      if (!token) throw new ApiError(status.FORBIDDEN, "Invalid token");
 
       const verifiedUser = jwtHelpers.verifyToken(
-        tokenWithoutBearer,
+        token,
         config.jwt.jwt_secret as Secret
       );
 
