@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import catchAsync from "../../shared/catchAsync";
-import { AuthServices } from "./Auth.services";
-import sendResponse from "../../shared/sendResponse";
-import { generateToken } from "../../../helpers/jwtHelpers";
-import config from "../../../config";
+
 import status from "http-status";
+import config from "../../../config";
+import { generateToken } from "../../../helpers/jwtHelpers";
+import sendResponse from "../../shared/sendResponse";
+import { AuthServices } from "./auth.services";
 
 const login = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthServices.login(req.body);
@@ -40,9 +41,6 @@ const login = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
-
-
-
 
 export const AuthControllers = {
   login,
