@@ -50,7 +50,7 @@ router.delete(
 
 // update votes
 router.patch(
-  "/update/:id",
+  "/update-vote/:id",
   AuthGurd(UserRole.USER),
   ReviewControllers.updateVotes
 );

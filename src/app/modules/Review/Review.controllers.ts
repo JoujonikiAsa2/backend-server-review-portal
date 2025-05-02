@@ -46,7 +46,6 @@ const GetReviewById = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
-
     message: "Reviews fetched Successfully.",
     data: result,
   });
@@ -83,7 +82,8 @@ const deleteReview = catchAsync(async (req, res) => {
 const updateVotes = catchAsync(async (req, res) => {
   const result = await ReviewServices.updateVotesInDB(
     req.params.id,
-    req?.query?.voteType as string
+    req?.query?.voteType as string,
+    Number(req.query.count)  
   );
 
   sendResponse(res, {

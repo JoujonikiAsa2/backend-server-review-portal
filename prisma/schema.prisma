@@ -21,6 +21,7 @@ model User {
   Comment               Comment[]
   PremiumPurchaseReview PremiumPurchaseReview[]
   Payment               Payment[]
+  Vote                  Vote[]
 
   @@map("users")
 }
@@ -43,8 +44,21 @@ model Review {
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
   price                 Int?
+  Vote                  Vote[]
 
   @@map("reviews")
+}
+
+model Vote {
+  id       String  @id @default(uuid())
+  reviewId String
+  review   Review  @relation(fields: [reviewId], references: [id])
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  upVote   Boolean @default(false)
+  downVote Boolean @default(false)
+  
+  @@unique([reviewId, userId])
 }
 
 model PremiumPurchaseReview {

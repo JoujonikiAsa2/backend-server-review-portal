@@ -208,7 +208,16 @@ const deleteReviewInDB = async (id: string, user: JwtPayload) => {
   return result;
 };
 
-const updateVotesInDB = async (id: string, voteTypes: string) => {
+const updateVotesInDB = async (
+  id: string,
+  voteTypes: string,
+  count: number
+) => {
+  console.log({
+    id,
+    voteTypes,
+    count,
+  });
   if (!id || !voteTypes) throw new ApiError(status.BAD_REQUEST, "Bad Request");
 
   // Checking is review exists
@@ -217,7 +226,23 @@ const updateVotesInDB = async (id: string, voteTypes: string) => {
       id,
     },
   });
-
+  console.log("isReviewExists", isReviewExists);
+  const currentVotes = await prisma.review.findUnique({
+    where: {
+      id,
+    },
+    select: {
+      upVotes: true,
+      downVotes: true,
+    },
+  });
+  if (
+    currentVotes?.upVotes === 0 &&
+    count < 0 &&
+    currentVotes?.downVotes === 0 &&
+    count < 0
+  )
+    throw new ApiError(status.BAD_REQUEST, "Bad Request");
   if (!isReviewExists)
     throw new ApiError(status.NOT_FOUND, "Review Not Found.");
   const result = await prisma.review.update({
@@ -226,7 +251,7 @@ const updateVotesInDB = async (id: string, voteTypes: string) => {
     },
     data: {
       [voteTypes]: {
-        increment: 1,
+        increment: count,
       },
     },
     select: {
@@ -234,6 +259,24 @@ const updateVotesInDB = async (id: string, voteTypes: string) => {
       downVotes: true,
     },
   });
+  // const result = await prisma.$transaction(async (tsClient) => {
+
+  //   const updatedVoteForParticullarUser = await prisma.vote.upsert({
+  //     where: {
+  //       reviewId_userId: {
+  //         reviewId: id,
+  //         userId: isReviewExists.userId,
+  //       },
+  //     },
+  //     update: voteTypes === "upVote" ? { upVote: true } : { downVote: true },
+  //     create: {
+  //       reviewId: id,
+  //       userId: isReviewExists.userId,
+  //       upVote: voteTypes === "upVote" ? true : false,
+  //       downVote: voteTypes === "downVote" ? true : false,
+  //     },
+  //   });
+  // });
 
   return result;
 };
