@@ -1,21 +1,34 @@
-import express from "express";
-import { UserControllers } from "./User.controllers";
-import limiter from "../../middleware/rateLimiter";
-import auth from "../../middleware/AuthGurd";
-import validateRequest from "../../middleware/validateRequest";
-import { UserSchemas } from "./User.ZodValidations";
-import AuthGurd from "../../middleware/AuthGurd";
 import { UserRole } from "@prisma/client";
+import express from "express";
+import AuthGurd from "../../middleware/AuthGurd";
+import { UploadImageInServer } from "../../middleware/UploadImage";
+import validateRequest from "../../middleware/validateRequest";
+import { UserControllers } from "./User.controllers";
+import { UserSchemas } from "./User.ZodValidations";
 
+import { UploadToCloudinary } from "../../../helpers/CloudinaryUpload";
 const router = express.Router();
 // Get all users
-router.get("/", AuthGurd(UserRole.ADMIN), UserControllers.GetAllUsers);
+router.get(
+  "/",
+  AuthGurd(UserRole.ADMIN, UserRole.USER),
+  UserControllers.GetAllUsers
+);
 
 // Create user
 router.post(
   "/create",
   validateRequest(UserSchemas.userCreationSchema),
   UserControllers.registerUser
+);
+
+router.patch(
+  "/update",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  UploadImageInServer.single("file"),
+  UploadToCloudinary,
+  validateRequest(UserSchemas.updateSchema),
+  UserControllers.updateUser
 );
 
 export const UserRoutes = router;

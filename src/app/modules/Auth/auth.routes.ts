@@ -1,8 +1,6 @@
 import express from "express";
-import { AuthControllers } from "./Auth.controllers";
-import limiter from "../../middleware/rateLimiter";
-import auth from "../../middleware/AuthGurd";
 import validateRequest from "../../middleware/validateRequest";
+import { AuthControllers } from "./auth.controllers";
 import { AuthSchemas } from "./Auth.ZodValidations";
 
 const router = express.Router();

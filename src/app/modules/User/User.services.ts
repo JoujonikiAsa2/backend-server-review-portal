@@ -1,17 +1,15 @@
-import { Secret } from "jsonwebtoken";
+import { JwtPayload, Secret } from "jsonwebtoken";
 import config from "../../../config";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { findUserByEmail } from "../../../helpers/userHelpers";
 import ApiError from "../../errors/ApiError";
 import prisma from "../../shared/prisma";
 import bcrypt from "bcrypt";
-import { TUser } from "./User.ZodValidations";
+import { TUpdateUser, TUser } from "./User.ZodValidations";
 import status from "http-status";
 
 const registerUserIntoDB = async (payload: TUser) => {
   const { name, email, password } = payload;
-  console.log("User payload ", payload);
-
   // Check if user already exists
   const user = await prisma.user.findUnique({
     where: {
@@ -28,9 +26,7 @@ const registerUserIntoDB = async (payload: TUser) => {
     password: hashedPassword,
   };
 
-  console.log("User Data: ", userData);
   // Create user in DB
-
   const result = await prisma.user.create({
     data: userData,
   });
@@ -38,6 +34,20 @@ const registerUserIntoDB = async (payload: TUser) => {
   return result;
 };
 
+const updateUserInDB = async (user: JwtPayload, payload: TUpdateUser) => {
+  const users = await prisma.user.update({
+    where: {
+      email: user.email,
+    },
+    data: payload,
+  });
+  const updatedUser = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+  return updatedUser;
+};
 const GetAllUsersFromDB = async () => {
   const users = await prisma.user.findMany({
     select: {
@@ -45,6 +55,7 @@ const GetAllUsersFromDB = async () => {
       name: true,
       email: true,
       role: true,
+      imageUrl: true,
       createdAt: true,
     },
   });
@@ -54,4 +65,5 @@ const GetAllUsersFromDB = async () => {
 export const UserServices = {
   registerUserIntoDB,
   GetAllUsersFromDB,
+  updateUserInDB,
 };

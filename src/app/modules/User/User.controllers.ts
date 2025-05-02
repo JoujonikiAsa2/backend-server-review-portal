@@ -14,6 +14,16 @@ const registerUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updateUser = catchAsync(async (req, res) => {
+  const result = await UserServices.updateUserInDB(req.user, req.body);
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "User updated Successfully.",
+    data: result,
+  });
+});
 const GetAllUsers = catchAsync(async (req, res) => {
   const result = await UserServices.GetAllUsersFromDB();
 
@@ -27,5 +37,6 @@ const GetAllUsers = catchAsync(async (req, res) => {
 
 export const UserControllers = {
   registerUser,
-  GetAllUsers
+  GetAllUsers,
+  updateUser,
 };
