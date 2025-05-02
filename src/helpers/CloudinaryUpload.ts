@@ -1,10 +1,11 @@
 import { v2 as cloudinary } from "cloudinary";
 import { RequestHandler } from "express";
 import { Readable } from "stream";
+import config from "../config";
 cloudinary.config({
-  cloud_name: "ds0y5kjhc",
-  api_key: "898154395629377",
-  api_secret: "q24pv6f1HqtmkmFl-SN6-YxiSbw", // Click 'View API Keys' above to copy your API secret
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.api_key,
+  api_secret: config.cloudinary.api_secret, // Click 'View API Keys' above to copy your API secret
 });
 export const UploadToCloudinary: RequestHandler = async function (
   req,
@@ -13,7 +14,7 @@ export const UploadToCloudinary: RequestHandler = async function (
 ) {
   const buffer = req.file?.buffer!;
   req.body = JSON.parse(req.body.data);
-  console.log("hitting");
+
   return new Promise((res, rej) => {
     if (buffer) {
       const theTransformStream = cloudinary.uploader.upload_stream(
