@@ -237,10 +237,8 @@ const updateVotesInDB = async (
     },
   });
   if (
-    currentVotes?.upVotes === 0 &&
-    count < 0 &&
-    currentVotes?.downVotes === 0 &&
-    count < 0
+    (currentVotes?.upVotes === 0 && count < 0) ||
+    (currentVotes?.downVotes === 0 && count < 0)
   )
     throw new ApiError(status.BAD_REQUEST, "Bad Request");
   if (!isReviewExists)
