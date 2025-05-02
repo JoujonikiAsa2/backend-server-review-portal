@@ -1,10 +1,17 @@
 import express from "express";
-import { AuthControllers } from "./auth.controllers";
+// import { AuthControllers } from "./Auth.controllers";
 import limiter from "../../middleware/rateLimiter";
-import auth from "../../middleware/auth";
+import auth from "../../middleware/AuthGurd";
+import validateRequest from "../../middleware/validateRequest";
+import { AuthSchemas } from "./Auth.ZodValidations";
+import { AuthControllers } from "./auth.controllers";
 
 const router = express.Router();
 
-router.post("/login", AuthControllers.login);
+router.post(
+  "/login",
+  validateRequest(AuthSchemas.loginSchema),
+  AuthControllers.login
+);
 
 export const AuthRoutes = router;

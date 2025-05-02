@@ -5,44 +5,42 @@ import { findUserByEmail } from "../../../helpers/userHelpers";
 import ApiError from "../../errors/ApiError";
 import prisma from "../../shared/prisma";
 import bcrypt from "bcrypt";
+import { PrismaClient } from "@prisma/client";
+import status from "http-status";
 
 type TLogin = {
   email: string;
   password: string;
 };
 
+// new branch created
+const prismaWithPassword = new PrismaClient();
 const login = async (payload: TLogin) => {
-  // find user
-  // check whether password correct
-  // generate access and refresh token
-  // return data
   const { email, password } = payload;
 
-  const user = await findUserByEmail(email);
+  const isUserExists = await prismaWithPassword.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  console.log(isUserExists);
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isUserExists) throw new ApiError(status.NOT_FOUND, "User Not Found.");
 
-  if (!isPasswordValid) throw new ApiError(401, "Invalid Credentials.");
-
-  const { password: _, ...userWithoutPassword } = user;
-
-  const accessToken = jwtHelpers.generateToken(
-    userWithoutPassword,
-    config.jwt.jwt_secret as Secret,
-    config.jwt.expires_in as string
+  const isPasswordValid = await bcrypt.compare(
+    password,
+    isUserExists?.password!
   );
 
-  const refreshToken = jwtHelpers.generateToken(
-    userWithoutPassword,
-    config.jwt.refresh_token_secret as Secret,
-    config.jwt.refresh_token_expires_in as string
-  );
-
-  return {
-    accessToken,
-    refreshToken,
-    userWithoutPassword,
+  if (!isPasswordValid)
+    throw new ApiError(status.UNAUTHORIZED, "Invalid Credentials.");
+  const loggedInUser = {
+    name: isUserExists.name,
+    email: isUserExists.email,
+    role: isUserExists.role,
   };
+  console.log(loggedInUser);
+  return loggedInUser;
 };
 
 export const AuthServices = {
