@@ -26,7 +26,22 @@ const GetAllReview = catchAsync(async (req, res) => {
   });
 });
 
+const updateVotes = catchAsync(async (req, res) => {
+  const result = await ReviewServices.updateVotesInDB(
+    req.params.id,
+    req?.query?.voteType as string
+  );
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "Vote updated Successfully.",
+    data: result,
+  });
+});
+
 export const ReviewControllers = {
   createReview,
   GetAllReview,
+  updateVotes,
 };

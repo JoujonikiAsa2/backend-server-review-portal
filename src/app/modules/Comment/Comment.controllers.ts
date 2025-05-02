@@ -1,10 +1,10 @@
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import status from "http-status";
-import { CommentServices, PaymentServices } from "./Comment.services";
+import { CommentServices } from "./Comment.services";
 
 const PostComment = catchAsync(async (req, res) => {
-  const result = await CommentServices.PostCommentInDB(req.body);
+  const result = await CommentServices.PostCommentInDB(req.user, req.body);
 
   sendResponse(res, {
     statusCode: status.CREATED,

@@ -26,4 +26,8 @@ router.post(
   ReviewControllers.createReview
 );
 
+// update votes
+
+router.patch("/update/:id", ReviewControllers.updateVotes);
+
 export const ReviewRoutes = router;

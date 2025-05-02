@@ -2,8 +2,9 @@ import express from "express";
 import auth from "../../middleware/AuthGurd";
 import validateRequest from "../../middleware/validateRequest";
 import AuthGurd from "../../middleware/AuthGurd";
-import { PaymentSchemas } from "./Comment.ZodValidations";
 import { CommentControllers } from "./Comment.controllers";
+import { CommentSchemas } from "./Comment.ZodValidations";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
 // Get all Payments
@@ -16,7 +17,8 @@ router.get(
 // Create user
 router.post(
   "/create",
-  // validateRequest(PaymentSchemas.paymentCreationSchema),
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  validateRequest(CommentSchemas.postCommentSchema),
   CommentControllers.PostComment
 );
 
