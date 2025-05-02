@@ -27,34 +27,27 @@ model User {
 
 model Review {
   id                    String                  @id @default(uuid())
-  userId                String
+  title                 String
+  description           String
+  userId                String?
+  user                  User?                   @relation(fields: [userId], references: [id])
+  imageUrl              String?
   category              Category
-  user                  User                    @relation(fields: [userId], references: [id]) 
-  upVotes               Int                     @default(0)
-  downVotes             Int                     @default(0)
-  isPremium             Boolean                 @default(false)
-  RatingSummary         RatingSummary?
-  Comment               Comment[]
+  upVotes               Int?                     @default(0)
+  downVotes             Int?                     @default(0)
+  isPremium             Boolean?               @default(false)
+  RatingSummary         Int?
+  isPublished           Boolean?                 @default(false)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
+  price                 Int?
+  Comment               Comment[]
+  Payment Payment[]
 
   @@map("reviews")
 }
 
-model RatingSummary {
-  id         String @id @default(uuid())
-  reviewId   String @unique
-  review     Review @relation(fields: [reviewId], references: [id])
-  oneStar    Int    @default(0)
-  twoStars   Int    @default(0)
-  threeStars Int    @default(0)
-  fourStars  Int    @default(0)
-  fiveStars  Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
 model PremiumPurchaseReview {
   id        String   @id @default(uuid())
@@ -85,16 +78,23 @@ model Comment {
 }
 
 model Payment {
-  id                    String                 @id @default(uuid())
-  amount                Float
-  paymentMethod         String?
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  PremiumPurchaseReview PremiumPurchaseReview?
-  User                  User?                  @relation(fields: [userId], references: [id])
-  userId                String?
+  id          String   @id @default(uuid())
+  userId      String?
+  reviewId    String
+  amount      Float
+  email       String 
+  transactionId String?
+  paymentStatus PaymentStatus? @default(PENDING)
+  paymentType PaymentType? @default(PREPAYMENT)
+  currency    String?
+  paymentMethod String?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  @@map("payments")
+  Review      Review?  @relation(fields: [reviewId], references: [id])
+  User        User?    @relation(fields: [userId], references: [id])
+  PremiumPurchaseReview PremiumPurchaseReview?
 }
 
 enum Category {
@@ -108,4 +108,17 @@ enum Category {
 enum UserRole {
   USER
   ADMIN
+}
+
+enum PaymentType {
+  PREPAYMENT
+  POSTPAYMENT
+}
+
+enum PaymentStatus {
+  CONFIRMED
+  CANCEL
+  FAILED
+  PENDING
+  REFUND
 }

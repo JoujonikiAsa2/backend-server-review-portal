@@ -1,20 +1,116 @@
-import { Secret } from "jsonwebtoken";
-import config from "../../../config";
+import Stripe from "stripe";
+import status from "http-status";
 import ApiError from "../../errors/ApiError";
 import prisma from "../../shared/prisma";
-import status from "http-status";
 import { TPayment } from "./Payment.ZodValidations";
+import config from "../../../config";
+import sendMail from "../../../helpers/sendEmail";
+import { PaymentStatus } from "@prisma/client";
 
-const CreatePaymentInDB = async (payload: TPayment) => {
-  // return result;
+const stripe = new Stripe(config.STRIPE_SECRET_KEY as string, {
+  apiVersion: "2024-04-10; custom_checkout_beta=v1" as any,
+});
+
+const createChechoutSession = async (payload: {
+  name: string;
+  email: string;
+  amount: number;
+}) => {
+  const createCustomer = await stripe.customers.create({
+    email: payload?.email,
+    name: payload?.name,
+  });
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Number(payload.amount) * 100,
+    currency: "bdt",
+    payment_method_types: ["card"],
+    customer: createCustomer.id,
+  });
+  return { clientSecret: paymentIntent.client_secret };
 };
 
-const GetAllPaymentsFromDB = async () => {
-  const users = await prisma.payment.findMany({});
-  return users;
+const createPaymentInDB = async (payload: TPayment) => {
+  const userInfo = await prisma.user.findUnique({
+    where: { email: payload.email },
+  });
+
+  if (!userInfo) {
+    throw new ApiError(status.NOT_FOUND, "User does not exist");
+  }
+
+  const reviewInfo = await prisma.review.findUnique({
+    where: { id: payload?.reviewId },
+  });
+
+  if (!reviewInfo) {
+    throw new ApiError(status.NOT_FOUND, "Review does not exist");
+  }
+
+  const paymentInfo = await prisma.payment.create({
+    data: {
+      amount: 200,
+      completedAt: new Date(),
+      currency: "bdt",
+      reviewId: reviewInfo.id,
+      email: userInfo.email,
+      userId: userInfo.id,
+      transactionId: payload.transactionId,
+      paymentStatus: PaymentStatus.CONFIRMED,
+      paymentMethod: payload.paymentMethod ?? "card"
+    },
+  });
+
+await prisma.premiumPurchaseReview.create({
+    data: {
+      userId: userInfo.id,
+      reviewId: reviewInfo.id,
+      paymentId: paymentInfo.id
+    },
+  });
+
+  const emailInfo = {
+    name: userInfo.name,
+    email: userInfo.email,
+    subject: "Payment Confirmation",
+    transactionId: paymentInfo.transactionId,
+    reviewId: reviewInfo.id,
+    amount: reviewInfo.price,
+    completedAt: paymentInfo.completedAt
+  }
+
+  sendMail(emailInfo)
+
+  return paymentInfo;
+};
+
+const getPaymentsByEmail = async (email: string) => {
+  const userInfo = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  if (!userInfo) {
+    throw new ApiError(status.NOT_FOUND, "User does not exist");
+  }
+
+  const result = await prisma.payment.findMany({
+    where: {
+      email: email,
+    },
+  });
+  return result;
+};
+
+const getAllPaymentsFromDB = async () => {
+  const result = await prisma.payment.findMany({});
+  return result;
 };
 
 export const PaymentServices = {
-  CreatePaymentInDB,
-  GetAllPaymentsFromDB,
+  createChechoutSession,
+  createPaymentInDB,
+  getPaymentsByEmail,
+  getAllPaymentsFromDB,
 };
