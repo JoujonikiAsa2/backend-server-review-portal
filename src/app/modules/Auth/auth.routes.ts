@@ -1,9 +1,10 @@
 import express from "express";
-import { AuthControllers } from "./Auth.controllers";
+// import { AuthControllers } from "./Auth.controllers";
 import limiter from "../../middleware/rateLimiter";
 import auth from "../../middleware/AuthGurd";
 import validateRequest from "../../middleware/validateRequest";
 import { AuthSchemas } from "./Auth.ZodValidations";
+import { AuthControllers } from "./auth.controllers";
 
 const router = express.Router();
 

@@ -1,25 +1,28 @@
 import express from "express";
-import { ReviewControllers } from "./Review.controllers";
-import auth from "../../middleware/AuthGurd";
 import validateRequest from "../../middleware/validateRequest";
+import { ReviewControllers } from "./Review.controllers";
 
-import AuthGurd from "../../middleware/AuthGurd";
 import { UserRole } from "@prisma/client";
-import { PaymentSchemas } from "../Payment/Payment.ZodValidations";
-import { PayementControllers } from "../Payment/Payment.controllers";
+import AuthGurd from "../../middleware/AuthGurd";
+import { ReviewSchemas } from "./Review.ZodValidations";
+import { UploadImageInServer } from "../../middleware/UploadImage";
+import { UploadToCloudinary } from "../../../helpers/CloudinaryUpload";
 
 const router = express.Router();
-// Get all users
+
 router.get(
   "/",
-  // AuthGurd(UserRole.ADMIN),
+  //  AuthGurd(UserRole.ADMIN),
   ReviewControllers.GetAllReview
 );
 
 // Create user
 router.post(
   "/create",
-  validateRequest(PaymentSchemas.paymentCreationSchema),
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  UploadImageInServer.single("file"),
+  UploadToCloudinary,
+  validateRequest(ReviewSchemas.reviewCreationSchema),
   ReviewControllers.createReview
 );
 

@@ -12,6 +12,7 @@ export const UploadToCloudinary: RequestHandler = async function (
   res,
   next
 ) {
+  // console.log({ body: req.body, file: req.file });
   const buffer = req.file?.buffer!;
   req.body = JSON.parse(req.body.data);
 
@@ -23,8 +24,8 @@ export const UploadToCloudinary: RequestHandler = async function (
           resource_type: "auto",
         },
         (err, result) => {
-          if (err) return rej(err);
-          if (result) {
+          if (err) return rej(err); 
+          if (result) { 
             req.body.imageUrl = result?.secure_url;
             next();
           }

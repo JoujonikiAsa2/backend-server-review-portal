@@ -27,33 +27,23 @@ model User {
 
 model Review {
   id                    String                  @id @default(uuid())
+  title                 String
+  description           String
   userId                String
+  user                  User                    @relation(fields: [userId], references: [id])
+  imageUrl              String
   category              Category
-  user                  User                    @relation(fields: [userId], references: [id]) 
   upVotes               Int                     @default(0)
   downVotes             Int                     @default(0)
   isPremium             Boolean                 @default(false)
-  RatingSummary         RatingSummary?
+  RatingSummary         Int
   Comment               Comment[]
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
+  price                 Int?
 
   @@map("reviews")
-}
-
-model RatingSummary {
-  id         String @id @default(uuid())
-  reviewId   String @unique
-  review     Review @relation(fields: [reviewId], references: [id])
-  oneStar    Int    @default(0)
-  twoStars   Int    @default(0)
-  threeStars Int    @default(0)
-  fourStars  Int    @default(0)
-  fiveStars  Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model PremiumPurchaseReview {

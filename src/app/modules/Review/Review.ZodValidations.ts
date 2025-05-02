@@ -1,18 +1,29 @@
-import { UserRole } from "@prisma/client";
+import { Category } from "@prisma/client";
 import { z } from "zod";
 
-// Enum for role
-export const UserRoleEnum = z.enum([UserRole.USER, UserRole.ADMIN]);
-
-// Base schema
 export const reviewCreationSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"), // Secure length
+  category: z.nativeEnum(Category),
+  RatingSummary: z.string({
+    required_error: "Rating rating is required",
+  }),
+  title: z.string().min(10, "Title is required"),
+  description: z.string().min(10, "Title is required"),
+  imageUrl: z.string({ required_error: "Image url is required" }),
+  price: z
+    .string({
+      required_error: "Price is required",
+    })
+    .min(1, "Price must be greater than 0")
+    .optional(),
 });
 
 export type TReview = z.infer<typeof reviewCreationSchema>;
 
+export const reviewUpdateSchema = reviewCreationSchema.partial();
+
+export type TReviewUpdate = z.infer<typeof reviewUpdateSchema>;
+
 export const ReviewSchemas = {
   reviewCreationSchema,
+  reviewUpdateSchema,
 };

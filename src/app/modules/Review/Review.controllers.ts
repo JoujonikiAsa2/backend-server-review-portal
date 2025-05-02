@@ -1,12 +1,11 @@
-import { Request, Response } from "express";
+import status from "http-status";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
-import status from "http-status";
-import { PaymentServices } from "../Payment/Payment.services";
 import { ReviewServices } from "./Review.services";
 
 const createReview = catchAsync(async (req, res) => {
-  const result = await ReviewServices.createReviewInDB(req.body);
+  const user = { email: req.user.email }; //req.user exists
+  const result = await ReviewServices.createReview(user, req.body);
 
   sendResponse(res, {
     statusCode: status.CREATED,
@@ -15,8 +14,9 @@ const createReview = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const GetAllReview = catchAsync(async (req, res) => {
-  const result = await ReviewServices.GetAllReviewFromDB();
+  const result = await ReviewServices.getAllReviews();
 
   sendResponse(res, {
     statusCode: status.CREATED,
