@@ -90,6 +90,8 @@ const UpdateCommentOfReview = async (
 
 // Delete comment of review
 const DeleteCommentOfReview = async (user: JwtPayload, id: string) => {
+  let result;
+  console.log("user", user);
   // Check if the comment user is exists
   const isUserExists = await prisma.user.findUnique({
     where: {
@@ -98,20 +100,32 @@ const DeleteCommentOfReview = async (user: JwtPayload, id: string) => {
   });
   if (!isUserExists) throw new ApiError(status.NOT_FOUND, "User Not Found.");
 
-  // Find comment
-  const comment = await prisma.comment.findUnique({
-    where: {
-      userId: isUserExists.id,
-      id,
-    },
-  });
-  if (!comment) throw new ApiError(status.NOT_FOUND, "Comment Not Found.");
-
-  const result = await prisma.comment.delete({
-    where: {
-      id,
-    },
-  });
+  if (user?.userRole.toUpperCase() === "ADMIN") {
+    const comment = await prisma.comment.findUnique({
+      where: {
+        id,
+      },
+    });
+    if (!comment) throw new ApiError(status.NOT_FOUND, "Comment Not Found.");
+    result = await prisma.comment.delete({
+      where: {
+        id,
+      },
+    });
+  } else {
+    const comment = await prisma.comment.findUnique({
+      where: {
+        userId: isUserExists.id,
+        id,
+      },
+    });
+    if (!comment) throw new ApiError(status.NOT_FOUND, "Comment Not Found.");
+    result = await prisma.comment.delete({
+      where: {
+        id,
+      },
+    });
+  }
 
   return result;
 };

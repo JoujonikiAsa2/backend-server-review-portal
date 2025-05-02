@@ -22,6 +22,9 @@ const GetAllCommentById = catchAsync(async (req, res) => {
     statusCode: status.CREATED,
     success: true,
     message: "Comment data fetched Successfully.",
+    meta: {
+      total: result.length,
+    },
     data: result,
   });
 });

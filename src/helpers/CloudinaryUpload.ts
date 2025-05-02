@@ -14,7 +14,9 @@ export const UploadToCloudinary: RequestHandler = async function (
 ) {
   // console.log({ body: req.body, file: req.file });
   const buffer = req.file?.buffer!;
-  req.body = JSON.parse(req.body.data);
+  if (req.body.data) {
+    req.body = JSON.parse(req.body.data);
+  }
 
   return new Promise((res, rej) => {
     if (buffer) {
@@ -24,8 +26,8 @@ export const UploadToCloudinary: RequestHandler = async function (
           resource_type: "auto",
         },
         (err, result) => {
-          if (err) return rej(err); 
-          if (result) { 
+          if (err) return rej(err);
+          if (result) {
             req.body.imageUrl = result?.secure_url;
             next();
           }

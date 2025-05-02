@@ -15,8 +15,13 @@ router.get(
   //  AuthGurd(UserRole.ADMIN),
   ReviewControllers.GetAllReview
 );
+router.get(
+  "/:id",
+  //  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.GetReviewById
+);
 
-// Create user
+// Create review
 router.post(
   "/create",
   AuthGurd(UserRole.USER, UserRole.ADMIN),
@@ -26,8 +31,24 @@ router.post(
   ReviewControllers.createReview
 );
 
-// update votes
+// update review
+router.patch(
+  "/update/:id",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  UploadImageInServer.single("file"),
+  UploadToCloudinary,
+  validateRequest(ReviewSchemas.reviewUpdateSchema),
+  ReviewControllers.updateReview
+);
 
+// Delete review
+router.delete(
+  "/delete/:id",
+  AuthGurd(UserRole.USER),
+  ReviewControllers.deleteReview
+);
+
+// update votes
 router.patch(
   "/update/:id",
   AuthGurd(UserRole.USER),

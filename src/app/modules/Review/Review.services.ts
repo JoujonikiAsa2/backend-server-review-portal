@@ -1,11 +1,12 @@
 import { Prisma, Review } from "@prisma/client";
 import prisma from "../../shared/prisma";
-import { TReview } from "./Review.ZodValidations";
+import { TReview, TReviewUpdate } from "./Review.ZodValidations";
 import ApiError from "../../errors/ApiError";
 import status from "http-status";
+import { JwtPayload } from "jsonwebtoken";
 
 const createReview = async (
-  user: { email: string },
+  user: JwtPayload,
   payload: TReview
 ): Promise<Review> => {
   // Find User
@@ -15,7 +16,7 @@ const createReview = async (
   if (!foundUser) {
     throw new ApiError(status.NOT_FOUND, "User not found");
   }
-  console.log("foundUser", foundUser);
+  // console.log("foundUser", foundUser);
   // Prepare the review data
   const reviewData: Prisma.ReviewCreateInput = {
     user: { connect: { id: foundUser.id } },
@@ -23,8 +24,10 @@ const createReview = async (
     title: payload.title,
     description: payload.description,
     imageUrl: payload.imageUrl,
-    price: Number(payload.price),
     RatingSummary: Number(payload.RatingSummary),
+    isPublished: user?.userRole.toUpperCase() === "ADMIN" ? true : false,
+    isPremium: user?.userRole.toUpperCase() === "ADMIN" ? true : false,
+    price: user?.userRole.toUpperCase() === "ADMIN" ? Number(payload.price) : 0,
   };
 
   // Create the review
@@ -46,8 +49,41 @@ const createReview = async (
   return review;
 };
 
-const getAllReviews = async () => {
+const getAllReviews = async (filterData: any, options: any) => {
+  const { searchTerm, ...filterDataWithoutSearchTerm } = filterData;
+  console.log(options);
+  const andConditions: Prisma.ReviewWhereInput[] = [];
+  if (searchTerm) {
+    andConditions.push({
+      title: {
+        contains: searchTerm,
+        mode: "insensitive",
+      },
+    });
+  }
+  if (
+    Object.keys(filterDataWithoutSearchTerm) &&
+    Object.keys(filterDataWithoutSearchTerm).length > 0
+  ) {
+    andConditions.push({
+      AND: Object.keys(filterDataWithoutSearchTerm).map((key) => ({
+        [key]: {
+          equals:
+            key === "RatingSummary"
+              ? Number(filterDataWithoutSearchTerm[key])
+              : filterDataWithoutSearchTerm[key],
+        },
+      })),
+    });
+  }
+  console.dir(andConditions, { depth: "infinity" });
   const reviews = await prisma.review.findMany({
+    where: {
+      isPublished: true,
+      AND: andConditions,
+    },
+    skip: Number(options.page - 1) || 0,
+    take: Number(options.limit) || 10,
     include: {
       user: {
         select: {
@@ -57,14 +93,119 @@ const getAllReviews = async () => {
           imageUrl: true,
         },
       },
-      Comment: true,
     },
-    orderBy: {
-      createdAt: "desc",
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+  });
+
+  return reviews;
+};
+const getAllReviewByIdFromDB = async (id: string) => {
+  const reviews = await prisma.review.findUnique({
+    where: {
+      id,
+      isPublished: true,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          imageUrl: true,
+        },
+      },
     },
   });
 
   return reviews;
+};
+
+const updateReviewInDB = async (
+  user: JwtPayload,
+  id: string,
+  payload: TReview
+) => {
+  console.log({
+    user,
+    id,
+    payload,
+  });
+
+  // Check is review creator exists
+  const isReviewCreatorExists = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+
+  console.log("passed 1");
+  if (!isReviewCreatorExists)
+    throw new ApiError(status.NOT_FOUND, "Review Creator Not Found.");
+  // Check is review exists
+  const isReviewExists = await prisma.review.findUnique({
+    where: {
+      id,
+      userId: isReviewCreatorExists.id,
+    },
+  });
+  console.log("passed 2");
+
+  if (!isReviewExists)
+    throw new ApiError(status.NOT_FOUND, "Review Not Found.");
+  const result = await prisma.review.update({
+    where: {
+      id,
+      userId: isReviewCreatorExists.id,
+    },
+    data: payload,
+  });
+  return result;
+};
+
+const deleteReviewInDB = async (id: string, user: JwtPayload) => {
+  console.log("user", user);
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+  console.log("user exists", isUserExists);
+  if (!isUserExists) throw new ApiError(status.NOT_FOUND, "User Not Found.");
+  const isReviewBelongsToCurrentUser = await prisma.review.findUnique({
+    where: {
+      id,
+      userId: user.id,
+    },
+  });
+
+  if (!isReviewBelongsToCurrentUser)
+    throw new ApiError(status.NOT_FOUND, "Review Not Found.");
+
+  const result = await prisma.$transaction(async (tsClient) => {
+    // Delete all comments associated with this review
+    await tsClient.comment.deleteMany({
+      where: {
+        reviewId: id,
+      },
+    });
+
+    // Delete review
+    return await tsClient.review.delete({
+      where: {
+        id,
+        userId: isUserExists.id,
+      },
+    });
+  });
+
+  return result;
 };
 
 const updateVotesInDB = async (id: string, voteTypes: string) => {
@@ -101,4 +242,7 @@ export const ReviewServices = {
   createReview,
   getAllReviews,
   updateVotesInDB,
+  getAllReviewByIdFromDB,
+  updateReviewInDB,
+  deleteReviewInDB,
 };

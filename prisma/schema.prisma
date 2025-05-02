@@ -38,6 +38,7 @@ model Review {
   isPremium             Boolean                 @default(false)
   RatingSummary         Int
   Comment               Comment[]
+  isPublished           Boolean                 @default(false)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
