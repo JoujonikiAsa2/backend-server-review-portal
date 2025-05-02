@@ -22,4 +22,18 @@ router.post(
   CommentControllers.PostComment
 );
 
+// update comment
+router.patch(
+  "/update/:id",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  CommentControllers.updateComment
+);
+
+// Delete comment
+router.delete(
+  "/delete/:id",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  CommentControllers.deleteComment
+);
+
 export const CommentRoutes = router;

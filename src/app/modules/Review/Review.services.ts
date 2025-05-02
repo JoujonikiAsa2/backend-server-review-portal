@@ -8,8 +8,6 @@ const createReview = async (
   user: { email: string },
   payload: TReview
 ): Promise<Review> => {
-  console.log("payload", payload);
-  console.log("user", user);
   // Find User
   const foundUser = await prisma.user.findUnique({
     where: { email: user.email },
@@ -71,8 +69,8 @@ const getAllReviews = async () => {
 
 const updateVotesInDB = async (id: string, voteTypes: string) => {
   if (!id || !voteTypes) throw new ApiError(status.BAD_REQUEST, "Bad Request");
-  // Checking is review exists
 
+  // Checking is review exists
   const isReviewExists = await prisma.review.findUnique({
     where: {
       id,
@@ -89,6 +87,10 @@ const updateVotesInDB = async (id: string, voteTypes: string) => {
       [voteTypes]: {
         increment: 1,
       },
+    },
+    select: {
+      upVotes: true,
+      downVotes: true,
     },
   });
 

@@ -25,8 +25,38 @@ const GetAllCommentById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const updateComment = catchAsync(async (req, res) => {
+  const result = await CommentServices.UpdateCommentOfReview(
+    req.user,
+    req.params.id!,
+    req.body.content
+  );
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "Comment updated Successfully.",
+    data: result,
+  });
+});
+
+const deleteComment = catchAsync(async (req, res) => {
+  const result = await CommentServices.DeleteCommentOfReview(
+    req.user,
+    req.params.id!
+  );
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "Comment deleted Successfully.",
+    data: result,
+  });
+});
 
 export const CommentControllers = {
   PostComment,
   GetAllCommentById,
+  updateComment,
+  deleteComment,
 };

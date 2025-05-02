@@ -43,11 +43,82 @@ const GetAllCommentFromDbByReviewId = async (id: string) => {
     where: {
       reviewId: id,
     },
+    include: {
+      user: {
+        select: {
+          name: true,
+          imageUrl: true,
+        },
+      },
+    },
   });
   return comments;
+};
+
+const UpdateCommentOfReview = async (
+  user: JwtPayload,
+  id: string,
+  content: string
+) => {
+  // Check if the comment user is exists
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+  if (!isUserExists) throw new ApiError(status.NOT_FOUND, "User Not Found.");
+  // Find comment
+  const comment = await prisma.comment.findUnique({
+    where: {
+      userId: isUserExists.id,
+      id,
+    },
+  });
+
+  if (!comment) throw new ApiError(status.NOT_FOUND, "Comment Not Found.");
+
+  const comments = await prisma.comment.update({
+    where: {
+      id,
+    },
+    data: {
+      content,
+    },
+  });
+  return comments;
+};
+
+// Delete comment of review
+const DeleteCommentOfReview = async (user: JwtPayload, id: string) => {
+  // Check if the comment user is exists
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email: user.email,
+    },
+  });
+  if (!isUserExists) throw new ApiError(status.NOT_FOUND, "User Not Found.");
+
+  // Find comment
+  const comment = await prisma.comment.findUnique({
+    where: {
+      userId: isUserExists.id,
+      id,
+    },
+  });
+  if (!comment) throw new ApiError(status.NOT_FOUND, "Comment Not Found.");
+
+  const result = await prisma.comment.delete({
+    where: {
+      id,
+    },
+  });
+
+  return result;
 };
 
 export const CommentServices = {
   PostCommentInDB,
   GetAllCommentFromDbByReviewId,
+  UpdateCommentOfReview,
+  DeleteCommentOfReview,
 };

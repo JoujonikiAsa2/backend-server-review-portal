@@ -28,6 +28,10 @@ router.post(
 
 // update votes
 
-router.patch("/update/:id", ReviewControllers.updateVotes);
+router.patch(
+  "/update/:id",
+  AuthGurd(UserRole.USER),
+  ReviewControllers.updateVotes
+);
 
 export const ReviewRoutes = router;
