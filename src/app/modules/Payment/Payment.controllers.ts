@@ -13,6 +13,7 @@ const createPayment = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const GetAllPayment = catchAsync(async (req, res) => {
   const result = await PaymentServices.GetAllPaymentsFromDB();
 
