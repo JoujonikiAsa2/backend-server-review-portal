@@ -45,6 +45,7 @@ model Review {
   PremiumPurchaseReview PremiumPurchaseReview[]
   price                 Int?
   Vote                  Vote[]
+  Payment Payment[]
 
   @@map("reviews")
 }
@@ -57,7 +58,7 @@ model Vote {
   user     User    @relation(fields: [userId], references: [id])
   upVote   Boolean @default(false)
   downVote Boolean @default(false)
-  
+
   @@unique([reviewId, userId])
 }
 
@@ -90,16 +91,23 @@ model Comment {
 }
 
 model Payment {
-  id                    String                 @id @default(uuid())
-  amount                Float
-  paymentMethod         String?
-  createdAt             DateTime               @default(now())
-  updatedAt             DateTime               @updatedAt
-  PremiumPurchaseReview PremiumPurchaseReview?
-  User                  User?                  @relation(fields: [userId], references: [id])
-  userId                String?
+  id            String         @id @default(uuid())
+  userId        String?
+  reviewId      String
+  amount        Float
+  email         String
+  transactionId String?
+  paymentStatus PaymentStatus? @default(PENDING)
+  paymentType   PaymentType?   @default(PREPAYMENT)
+  currency      String?
+  paymentMethod String?
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
-  @@map("payments")
+  Review                Review?                @relation(fields: [reviewId], references: [id])
+  User                  User?                  @relation(fields: [userId], references: [id])
+  PremiumPurchaseReview PremiumPurchaseReview?
 }
 
 enum Category {
@@ -113,4 +121,17 @@ enum Category {
 enum UserRole {
   USER
   ADMIN
+}
+
+enum PaymentType {
+  PREPAYMENT
+  POSTPAYMENT
+}
+
+enum PaymentStatus {
+  CONFIRMED
+  CANCEL
+  FAILED
+  PENDING
+  REFUND
 }
