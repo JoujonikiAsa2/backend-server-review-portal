@@ -4,17 +4,55 @@ import { ReviewControllers } from "./Review.controllers";
 
 import { UserRole } from "@prisma/client";
 import AuthGurd from "../../middleware/AuthGurd";
-import { PaymentSchemas } from "../Payment/Payment.ZodValidations";
+import { ReviewSchemas } from "./Review.ZodValidations";
+import { UploadImageInServer } from "../../middleware/UploadImage";
+import { UploadToCloudinary } from "../../../helpers/CloudinaryUpload";
 
 const router = express.Router();
-// Get all users
-router.get("/", AuthGurd(UserRole.ADMIN), ReviewControllers.GetAllReview);
 
-// Create user
+router.get(
+  "/",
+  //  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.GetAllReview
+);
+router.get(
+  "/:id",
+  //  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.GetReviewById
+);
+
+// Create review
 router.post(
   "/create",
-  validateRequest(PaymentSchemas.paymentCreationSchema),
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  UploadImageInServer.single("file"),
+  UploadToCloudinary,
+  validateRequest(ReviewSchemas.reviewCreationSchema),
   ReviewControllers.createReview
+);
+
+// update review
+router.patch(
+  "/update/:id",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  UploadImageInServer.single("file"),
+  UploadToCloudinary,
+  validateRequest(ReviewSchemas.reviewUpdateSchema),
+  ReviewControllers.updateReview
+);
+
+// Delete review
+router.delete(
+  "/delete/:id",
+  AuthGurd(UserRole.USER),
+  ReviewControllers.deleteReview
+);
+
+// update votes
+router.patch(
+  "/update-vote/:id",
+  AuthGurd(UserRole.USER),
+  ReviewControllers.updateVotes
 );
 
 export const ReviewRoutes = router;

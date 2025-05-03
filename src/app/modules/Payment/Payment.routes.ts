@@ -4,20 +4,33 @@ import validateRequest from "../../middleware/validateRequest";
 import AuthGurd from "../../middleware/AuthGurd";
 import { PayementControllers } from "./Payment.controllers";
 import { PaymentSchemas } from "./Payment.ZodValidations";
+import { UserRole } from "@prisma/client";
 
 const router = express.Router();
-// Get all Payments
-router.get(
-  "/",
-  // AuthGurd(UserRole.ADMIN),
-  PayementControllers.GetAllPayment
+
+router.post(
+  "/create-checkout-session",
+  PayementControllers.createCheckoutSession
 );
 
-// Create user
 router.post(
   "/create",
-  // validateRequest(PaymentSchemas.paymentCreationSchema),
+  AuthGurd(UserRole.ADMIN, UserRole.USER),
+  validateRequest(PaymentSchemas.paymentCreationSchema),
   PayementControllers.createPayment
 );
+
+router.get(
+  "/my-payments/:email",
+  AuthGurd(UserRole.ADMIN, UserRole.USER),
+  PayementControllers.getAllPayments
+)
+
+router.get(
+  "/",
+  AuthGurd(UserRole.ADMIN, UserRole.USER),
+  PayementControllers.getAllPayments
+);
+
 
 export const PaymentRoutes = router;
