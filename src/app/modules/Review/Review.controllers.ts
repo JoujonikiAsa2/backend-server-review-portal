@@ -75,7 +75,7 @@ const deleteReview = catchAsync(async (req, res) => {
     statusCode: status.CREATED,
     success: true,
     message: "Review deleted Successfully.",
-    data: result,
+    data: null,
   });
 });
 
@@ -83,7 +83,7 @@ const updateVotes = catchAsync(async (req, res) => {
   const result = await ReviewServices.updateVotesInDB(
     req.params.id,
     req?.query?.voteType as string,
-    Number(req.query.count)  
+    Number(req.query.count)
   );
 
   sendResponse(res, {
