@@ -21,39 +21,44 @@ model User {
   Comment               Comment[]
   PremiumPurchaseReview PremiumPurchaseReview[]
   Payment               Payment[]
+  Vote                  Vote[]
 
   @@map("users")
 }
 
 model Review {
   id                    String                  @id @default(uuid())
+  title                 String
+  description           String
   userId                String
+  user                  User                    @relation(fields: [userId], references: [id])
+  imageUrl              String
   category              Category
-  user                  User                    @relation(fields: [userId], references: [id]) 
   upVotes               Int                     @default(0)
   downVotes             Int                     @default(0)
   isPremium             Boolean                 @default(false)
-  RatingSummary         RatingSummary?
+  RatingSummary         Int
   Comment               Comment[]
+  isPublished           Boolean                 @default(false)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
+  price                 Int?
+  Vote                  Vote[]
 
   @@map("reviews")
 }
 
-model RatingSummary {
-  id         String @id @default(uuid())
-  reviewId   String @unique
-  review     Review @relation(fields: [reviewId], references: [id])
-  oneStar    Int    @default(0)
-  twoStars   Int    @default(0)
-  threeStars Int    @default(0)
-  fourStars  Int    @default(0)
-  fiveStars  Int    @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Vote {
+  id       String  @id @default(uuid())
+  reviewId String
+  review   Review  @relation(fields: [reviewId], references: [id])
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  upVote   Boolean @default(false)
+  downVote Boolean @default(false)
+  
+  @@unique([reviewId, userId])
 }
 
 model PremiumPurchaseReview {
@@ -73,7 +78,7 @@ model PremiumPurchaseReview {
 
 model Comment {
   id        String   @id @default(uuid())
-  comment   String
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String

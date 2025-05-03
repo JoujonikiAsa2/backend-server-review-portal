@@ -13,11 +13,7 @@ import { UploadToCloudinary } from "../../../helpers/CloudinaryUpload";
 const router = express.Router();
 
 // Get all users
-router.get(
-  "/",
-  // AuthGurd(UserRole.ADMIN, UserRole.USER),
-  UserControllers.GetAllUsers
-);
+router.get("/", AuthGurd(UserRole.ADMIN), UserControllers.GetAllUsers);
 
 // Create user
 router.post(
