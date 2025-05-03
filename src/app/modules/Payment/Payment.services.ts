@@ -49,7 +49,7 @@ const createPaymentInDB = async (payload: TPayment) => {
 
   const paymentInfo = await prisma.payment.create({
     data: {
-      amount: 200,
+      amount: reviewInfo.price || 0,
       completedAt: new Date(),
       currency: "bdt",
       reviewId: reviewInfo.id,
