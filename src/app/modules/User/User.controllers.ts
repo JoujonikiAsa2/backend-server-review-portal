@@ -14,11 +14,12 @@ const registerUser = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const updateUser = catchAsync(async (req, res) => {
   const result = await UserServices.updateUserInDB(req.user, req.body);
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.CREATED, 
     success: true,
     message: "User updated Successfully.",
     data: result,

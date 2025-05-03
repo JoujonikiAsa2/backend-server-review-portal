@@ -21,6 +21,7 @@ model User {
   Comment               Comment[]
   PremiumPurchaseReview PremiumPurchaseReview[]
   Payment               Payment[]
+  Vote                  Vote[]
 
   @@map("users")
 }
@@ -29,25 +30,37 @@ model Review {
   id                    String                  @id @default(uuid())
   title                 String
   description           String
-  userId                String?
-  user                  User?                   @relation(fields: [userId], references: [id])
-  imageUrl              String?
+  userId                String
+  user                  User                    @relation(fields: [userId], references: [id])
+  imageUrl              String
   category              Category
-  upVotes               Int?                     @default(0)
-  downVotes             Int?                     @default(0)
-  isPremium             Boolean?               @default(false)
-  RatingSummary         Int?
-  isPublished           Boolean?                 @default(false)
+  upVotes               Int                     @default(0)
+  downVotes             Int                     @default(0)
+  isPremium             Boolean                 @default(false)
+  RatingSummary         Int
+  Comment               Comment[]
+  isPublished           Boolean                 @default(false)
   createdAt             DateTime                @default(now())
   updatedAt             DateTime                @updatedAt
   PremiumPurchaseReview PremiumPurchaseReview[]
   price                 Int?
-  Comment               Comment[]
+  Vote                  Vote[]
   Payment Payment[]
 
   @@map("reviews")
 }
 
+model Vote {
+  id       String  @id @default(uuid())
+  reviewId String
+  review   Review  @relation(fields: [reviewId], references: [id])
+  userId   String
+  user     User    @relation(fields: [userId], references: [id])
+  upVote   Boolean @default(false)
+  downVote Boolean @default(false)
+
+  @@unique([reviewId, userId])
+}
 
 model PremiumPurchaseReview {
   id        String   @id @default(uuid())
@@ -66,7 +79,7 @@ model PremiumPurchaseReview {
 
 model Comment {
   id        String   @id @default(uuid())
-  comment   String
+  content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String
@@ -78,22 +91,22 @@ model Comment {
 }
 
 model Payment {
-  id          String   @id @default(uuid())
-  userId      String?
-  reviewId    String
-  amount      Float
-  email       String 
+  id            String         @id @default(uuid())
+  userId        String?
+  reviewId      String
+  amount        Float
+  email         String
   transactionId String?
   paymentStatus PaymentStatus? @default(PENDING)
-  paymentType PaymentType? @default(PREPAYMENT)
-  currency    String?
+  paymentType   PaymentType?   @default(PREPAYMENT)
+  currency      String?
   paymentMethod String?
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  completedAt   DateTime?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
-  Review      Review?  @relation(fields: [reviewId], references: [id])
-  User        User?    @relation(fields: [userId], references: [id])
+  Review                Review?                @relation(fields: [reviewId], references: [id])
+  User                  User?                  @relation(fields: [userId], references: [id])
   PremiumPurchaseReview PremiumPurchaseReview?
 }
 

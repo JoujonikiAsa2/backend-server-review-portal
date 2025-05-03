@@ -102,7 +102,7 @@ const sendMail = async (payload: any): Promise<boolean> => {
                 <p><strong>Date:</strong> ${new Date(payload.completedAt)}</p>
                 <p><strong>Review Name:</strong> ${payload.reviewId}</p>
             </div>
-            <p>Thank you for your payment. We are excited to have you in our portal! 🎓</p>
+            <p>Thank you for your payment. We are excited to have you in our portal!</p>
         </div>
         <div class="footer">
             If you have any questions, feel free to <a href="mail to: support@pulsedu.com">contact us</a>. <br>

@@ -18,4 +18,9 @@ export default {
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
   nodemailer_email: process.env.NODEMAILER_EMAIL,
   nodemailer_password: process.env.NODEMAILER_PASSWORD,
+  cloudinary: {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  },
 };
