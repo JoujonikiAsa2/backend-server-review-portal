@@ -2,7 +2,7 @@ import status from "http-status";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { ReviewServices } from "./Review.services";
-import { pick } from "../../../helpers/pick.";
+import { pick } from "../../../helpers/pick";
 
 const createReview = catchAsync(async (req, res) => {
   //req.user exists
@@ -22,21 +22,19 @@ const GetAllReview = catchAsync(async (req, res) => {
     "title",
     "category",
     "RatingSummary",
+    "startDate",
+    "endDate"
   ]);
   const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
   const result = await ReviewServices.getAllReviews(filterData, options);
-  console.log("filterData", filterData);
+
   sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
-    meta: {
-      total: result.length,
-      page: Number(options.page) || 1,
-      limit: Number(options.limit) || 10,
-    },
     message: "Reviews fetched Successfully.",
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 
