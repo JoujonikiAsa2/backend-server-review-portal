@@ -24,9 +24,7 @@ Thumbs.db
 .idea/
 *.swp
 
-# Build output
-dist/
-build/
+
 
 # Prisma
 prisma/migrations/
