@@ -24,6 +24,7 @@ const createPayment = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const getMyPayments = catchAsync(async (req, res) => {
   const result = await PaymentServices.getPaymentsByEmail(req.params.email);
   sendResponse(res, {
@@ -33,6 +34,17 @@ const getMyPayments = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
+const getPaymentById = catchAsync(async (req, res) => {
+  const result = await PaymentServices.getPaymentById(req.params.id);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Payment Fetched Successfully.",
+    data: result,
+  });
+});
+
 const getAllPayments = catchAsync(async (req, res) => {
   const result = await PaymentServices.getAllPaymentsFromDB();
 
@@ -48,5 +60,6 @@ export const PayementControllers = {
   createCheckoutSession,
   createPayment,
   getMyPayments,
+  getPaymentById,
   getAllPayments,
 };

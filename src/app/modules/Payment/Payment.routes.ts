@@ -23,7 +23,12 @@ router.post(
 router.get(
   "/my-payments/:email",
   AuthGurd(UserRole.ADMIN, UserRole.USER),
-  PayementControllers.getAllPayments
+  PayementControllers.getMyPayments
+)
+router.get(
+  "/:id",
+  AuthGurd(UserRole.ADMIN, UserRole.USER),
+  PayementControllers.getPaymentById
 )
 
 router.get(
