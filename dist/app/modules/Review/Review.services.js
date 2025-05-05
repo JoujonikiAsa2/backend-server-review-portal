@@ -27,6 +27,7 @@ exports.ReviewServices = void 0;
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
+const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const createReview = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
     // Find User
     const foundUser = yield prisma_1.default.user.findUnique({
@@ -66,8 +67,8 @@ const createReview = (user, payload) => __awaiter(void 0, void 0, void 0, functi
     return review;
 });
 const getAllReviews = (filterData, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, skip, limit } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm } = filterData, filterDataWithoutSearchTerm = __rest(filterData, ["searchTerm"]);
-    console.log(options);
     const andConditions = [];
     if (searchTerm) {
         andConditions.push({
@@ -76,6 +77,21 @@ const getAllReviews = (filterData, options) => __awaiter(void 0, void 0, void 0,
                 mode: "insensitive",
             },
         });
+    }
+    if (filterData.startDate || filterData.endDate) {
+        console.log("Date range", filterData.startDate, filterData.endDate);
+        const dateRange = {};
+        if (filterData.startDate) {
+            dateRange.gte = new Date(filterData.startDate);
+        }
+        if (filterData.endDate) {
+            dateRange.lte = new Date(filterData.endDate);
+        }
+        andConditions.push({
+            createdAt: dateRange,
+        });
+        delete filterDataWithoutSearchTerm.startDate;
+        delete filterDataWithoutSearchTerm.endDate;
     }
     if (Object.keys(filterDataWithoutSearchTerm) &&
         Object.keys(filterDataWithoutSearchTerm).length > 0) {
@@ -95,8 +111,8 @@ const getAllReviews = (filterData, options) => __awaiter(void 0, void 0, void 0,
             isPublished: true,
             AND: andConditions,
         },
-        skip: Number(options.page - 1) || 0,
-        take: Number(options.limit) || 10,
+        skip: skip,
+        take: limit,
         include: {
             user: {
                 select: {
@@ -115,7 +131,22 @@ const getAllReviews = (filterData, options) => __awaiter(void 0, void 0, void 0,
                 createdAt: "desc",
             },
     });
-    return reviews;
+    const reviewCount = yield prisma_1.default.review.count();
+    const filteredReviews = yield prisma_1.default.review.count({
+        where: {
+            isPublished: true,
+            AND: andConditions,
+        },
+    });
+    return {
+        meta: {
+            totalPage: Math.ceil(reviewCount / limit),
+            total: filteredReviews,
+            limit,
+            page,
+        },
+        data: reviews,
+    };
 });
 const getAllReviewByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
     const reviews = yield prisma_1.default.review.findUnique({

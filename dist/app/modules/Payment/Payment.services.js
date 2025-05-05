@@ -52,7 +52,7 @@ const createPaymentInDB = (payload) => __awaiter(void 0, void 0, void 0, functio
     }
     const paymentInfo = yield prisma_1.default.payment.create({
         data: {
-            amount: 200,
+            amount: reviewInfo.price || 0,
             completedAt: new Date(),
             currency: "bdt",
             reviewId: reviewInfo.id,
@@ -60,14 +60,14 @@ const createPaymentInDB = (payload) => __awaiter(void 0, void 0, void 0, functio
             userId: userInfo.id,
             transactionId: payload.transactionId,
             paymentStatus: client_1.PaymentStatus.CONFIRMED,
-            paymentMethod: (_a = payload.paymentMethod) !== null && _a !== void 0 ? _a : "card"
+            paymentMethod: (_a = payload.paymentMethod) !== null && _a !== void 0 ? _a : "card",
         },
     });
     yield prisma_1.default.premiumPurchaseReview.create({
         data: {
             userId: userInfo.id,
             reviewId: reviewInfo.id,
-            paymentId: paymentInfo.id
+            paymentId: paymentInfo.id,
         },
     });
     const emailInfo = {
@@ -77,7 +77,7 @@ const createPaymentInDB = (payload) => __awaiter(void 0, void 0, void 0, functio
         transactionId: paymentInfo.transactionId,
         reviewId: reviewInfo.id,
         amount: reviewInfo.price,
-        completedAt: paymentInfo.completedAt
+        completedAt: paymentInfo.completedAt,
     };
     (0, sendEmail_1.default)(emailInfo);
     return paymentInfo;
@@ -98,6 +98,14 @@ const getPaymentsByEmail = (email) => __awaiter(void 0, void 0, void 0, function
     });
     return result;
 });
+const getPaymentById = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.payment.findFirst({
+        where: {
+            id: id,
+        },
+    });
+    return result;
+});
 const getAllPaymentsFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.payment.findMany({});
     return result;
@@ -106,5 +114,6 @@ exports.PaymentServices = {
     createChechoutSession,
     createPaymentInDB,
     getPaymentsByEmail,
+    getPaymentById,
     getAllPaymentsFromDB,
 };
