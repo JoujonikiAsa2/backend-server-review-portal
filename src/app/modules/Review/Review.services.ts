@@ -337,6 +337,53 @@ const updateVotesInDB = async (user: any, id: string, voteTypes: string) => {
   return { success: true, upVotes, downVotes };
 };
 
+const getReviewCountFromDB = async () => {
+  const reviews = await prisma.review.count({});
+  return reviews;
+};
+
+const getMyReviewsromDB = async (user: JwtPayload) => {
+  const { userRole, email } = user;
+  console.log("get my reviews", user);
+  if (userRole === "admin") {
+    console.log("admin");
+    return await prisma.review.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+  const reviews = await prisma.review.findMany({
+    where: {
+      user: {
+        email,
+      },
+    },
+  });
+
+  return reviews;
+};
+
+const updateReviewStatus = async (reviewId: string, actionType: string) => {
+  const review = await prisma.review.findUnique({ where: { id: reviewId } });
+  if (!review) throw new ApiError(status.NOT_FOUND, "Review does not exist");
+  if(actionType === "accept"){
+    const result = await prisma.review.update({
+      where: {
+        id: reviewId,
+      },
+      data: {
+        isPublished: true
+      },
+    });
+    return result;
+  }
+};
 
 export const ReviewServices = {
   createReview,
@@ -345,4 +392,7 @@ export const ReviewServices = {
   getAllReviewByIdFromDB,
   updateReviewInDB,
   deleteReviewInDB,
+  getMyReviewsromDB,
+  getReviewCountFromDB,
+  updateReviewStatus,
 };

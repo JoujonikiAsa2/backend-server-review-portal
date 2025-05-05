@@ -94,6 +94,40 @@ const updateVotes = catchAsync(async (req: Request & { user?: any }, res) => {
   });
 });
 
+const getReviewCount = catchAsync(async (req, res) => {
+  //req.user exists
+  const result = await ReviewServices.getReviewCountFromDB();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: `Review Count ${result}.`,
+    data: result,
+  });
+});
+const getMyReviews = catchAsync(async (req, res) => {
+  const result = await ReviewServices.getMyReviewsromDB(req.user);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Reviews fetchedd Successfully.",
+    data: result,
+  });
+});
+
+const updateReviewStatus = catchAsync(async (req, res) => {
+  const result = await ReviewServices.updateReviewStatus(req.params.reviewId, req.query.actionType as string);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Review Published Successfully.",
+    data: result,
+  });
+});
+
+
 export const ReviewControllers = {
   createReview,
   GetAllReview,
@@ -101,4 +135,7 @@ export const ReviewControllers = {
   GetReviewById,
   updateReview,
   deleteReview,
+  getReviewCount,
+  getMyReviews,
+  updateReviewStatus
 };

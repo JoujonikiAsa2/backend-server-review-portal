@@ -15,11 +15,6 @@ router.get(
   //  AuthGurd(UserRole.ADMIN),
   ReviewControllers.GetAllReview
 );
-router.get(
-  "/:id",
-  //  AuthGurd(UserRole.ADMIN),
-  ReviewControllers.GetReviewById
-);
 
 // Create review
 router.post(
@@ -54,6 +49,21 @@ router.patch(
   AuthGurd(UserRole.USER),
   ReviewControllers.updateVotes
 );
+
+router.get(
+  "/my-reviews",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  ReviewControllers.getMyReviews
+);
+router.get("/count", ReviewControllers.getReviewCount);
+router.get(
+  "/:id",
+  //  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.GetReviewById
+);
+
+router.patch("/:reviewId", ReviewControllers.updateReviewStatus)
+
 
 
 export const ReviewRoutes = router;
