@@ -1,14 +1,11 @@
-import express from "express";
-import { UserControllers } from "./User.controllers";
-// import limiter from "../../middleware/rateLimiter";
-// import auth from "../../middleware/AuthGurd";
-import validateRequest from "../../middleware/validateRequest";
-import { UserSchemas } from "./User.ZodValidations";
-import AuthGurd from "../../middleware/AuthGurd";
 import { UserRole } from "@prisma/client";
+import express from "express";
+import AuthGurd from "../../middleware/AuthGurd";
 import { UploadImageInServer } from "../../middleware/UploadImage";
-// import { Readable } from "stream";
-// import { v2 as cloudinary } from "cloudinary";
+import validateRequest from "../../middleware/validateRequest";
+import { UserControllers } from "./User.controllers";
+import { UserSchemas } from "./User.ZodValidations";
+
 import { UploadToCloudinary } from "../../../helpers/CloudinaryUpload";
 const router = express.Router();
 

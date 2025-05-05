@@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const User_routes_1 = require("../modules/User/User.routes");
+const AdminAnalytice_routes_1 = require("../modules/AdminAnalytices/AdminAnalytice.routes");
+const auth_routes_1 = require("../modules/Auth/auth.routes");
 const Payment_routes_1 = require("../modules/Payment/Payment.routes");
 const Review_routes_1 = require("../modules/Review/Review.routes");
-const auth_routes_1 = require("../modules/Auth/auth.routes");
 const Comment_routes_1 = require("../modules/Comment/Comment.routes");
 const router = express_1.default.Router();
 const moduleRoutes = [
@@ -26,6 +27,10 @@ const moduleRoutes = [
     {
         path: "/review",
         route: Review_routes_1.ReviewRoutes,
+    },
+    {
+        path: "/admin",
+        route: AdminAnalytice_routes_1.AdminAnalyticesRoutes,
     },
     {
         path: "/comment",
