@@ -6,18 +6,23 @@ import router from "./app/routes";
 
 const app: Application = express();
 
-// Enhanced CORS configuration
-const corsOptions = {
-  origin: true, // Reflects the request origin
-  credentials: true, // Required for cookies, authorization headers
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-};
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5174','https://backend-server-review-portal.vercel.app'];
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, origin); 
+    } else {
+      callback(new Error('The CORS policy does not allow this origin'), false);
+    }
+  },
+  credentials: true,
+}));
 
-// Handle preflight requests
-app.options('*', cors(corsOptions)); // Enable preflight for all routes
+app.use(cors({
+  origin: true, 
+  credentials: true
+}));
 
 app.use(cookieParser());
 
