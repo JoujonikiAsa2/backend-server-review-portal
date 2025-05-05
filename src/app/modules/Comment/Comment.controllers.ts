@@ -9,19 +9,20 @@ const PostComment = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
-    message: "Comment uploaded Successfully.",
+    message: "Comment Uploaded Successfully.",
     data: result,
   });
 });
+
 const GetAllCommentById = catchAsync(async (req, res) => {
   const result = await CommentServices.GetAllCommentFromDbByReviewId(
     req.params.id!
   );
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Comment data fetched Successfully.",
+    message: "Comments Fetched Successfully.",
     meta: {
       total: result.length || 0,
       limit: 0,
@@ -31,6 +32,7 @@ const GetAllCommentById = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const updateComment = catchAsync(async (req, res) => {
   const result = await CommentServices.UpdateCommentOfReview(
     req.user,
@@ -39,9 +41,9 @@ const updateComment = catchAsync(async (req, res) => {
   );
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Comment updated Successfully.",
+    message: "Comment Updated Successfully.",
     data: result,
   });
 });
@@ -53,9 +55,9 @@ const deleteComment = catchAsync(async (req, res) => {
   );
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Comment deleted Successfully.",
+    message: "Comment Deleted Successfully.",
     data: null,
   });
 });

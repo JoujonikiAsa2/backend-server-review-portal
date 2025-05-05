@@ -236,67 +236,146 @@ const deleteReviewInDB = (id, user) => __awaiter(void 0, void 0, void 0, functio
     }));
     return result;
 });
-const updateVotesInDB = (id, voteTypes, count) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log({
-        id,
-        voteTypes,
-        count,
-    });
+const updateVotesInDB = (user, id, voteTypes) => __awaiter(void 0, void 0, void 0, function* () {
     if (!id || !voteTypes)
         throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Bad Request");
-    // Checking is review exists
-    const isReviewExists = yield prisma_1.default.review.findUnique({
-        where: {
-            id,
-        },
+    const review = yield prisma_1.default.review.findUnique({ where: { id } });
+    if (!review)
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "Review does not exist");
+    const tokenUser = yield prisma_1.default.user.findUnique({
+        where: { email: user === null || user === void 0 ? void 0 : user.email },
     });
-    console.log("isReviewExists", isReviewExists);
-    const currentVotes = yield prisma_1.default.review.findUnique({
+    if (!tokenUser)
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User does not exist");
+    const existingVote = yield prisma_1.default.vote.findUnique({
         where: {
-            id,
-        },
-        select: {
-            upVotes: true,
-            downVotes: true,
-        },
-    });
-    if (((currentVotes === null || currentVotes === void 0 ? void 0 : currentVotes.upVotes) === 0 && count < 0) ||
-        ((currentVotes === null || currentVotes === void 0 ? void 0 : currentVotes.downVotes) === 0 && count < 0))
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Bad Request");
-    if (!isReviewExists)
-        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "Review Not Found.");
-    const result = yield prisma_1.default.review.update({
-        where: {
-            id,
-        },
-        data: {
-            [voteTypes]: {
-                increment: count,
+            reviewId_userId: {
+                userId: tokenUser.id,
+                reviewId: id,
             },
         },
-        select: {
-            upVotes: true,
-            downVotes: true,
+    });
+    let upVotes = review.upVotes;
+    let downVotes = review.downVotes;
+    let voteData = {
+        upVote: false,
+        downVote: false,
+    };
+    if (voteTypes === "upVotes") {
+        if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.upVote) {
+            upVotes--;
+        }
+        else if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.upVote) {
+            if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.downVote) {
+                downVotes--;
+            }
+            upVotes++;
+            voteData.upVote = true;
+        }
+        else {
+            if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.downVote) {
+                downVotes--;
+            }
+            upVotes++;
+            voteData.upVote = true;
+        }
+    }
+    else if (voteTypes === "downVotes") {
+        if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.downVote) {
+            downVotes--;
+        }
+        else {
+            if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.upVote) {
+                upVotes--;
+            }
+            downVotes++;
+            voteData.downVote = true;
+        }
+    }
+    else if (voteTypes === "removeVote") {
+        if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.upVote) {
+            upVotes--;
+        }
+        if (existingVote === null || existingVote === void 0 ? void 0 : existingVote.downVote) {
+            downVotes--;
+        }
+    }
+    yield prisma_1.default.$transaction([
+        prisma_1.default.vote.upsert({
+            where: {
+                reviewId_userId: {
+                    userId: tokenUser.id,
+                    reviewId: id,
+                },
+            },
+            update: voteData,
+            create: Object.assign({ userId: tokenUser.id, reviewId: id }, voteData),
+        }),
+        prisma_1.default.review.update({
+            where: { id },
+            data: {
+                upVotes,
+                downVotes,
+            },
+        }),
+    ]);
+    return { success: true, upVotes, downVotes };
+});
+const getReviewCountFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    const reviews = yield prisma_1.default.review.count({});
+    return reviews;
+});
+const getMyReviewsromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userRole, email } = user;
+    console.log("get my reviews", user);
+    if (userRole === "admin") {
+        console.log("admin");
+        return yield prisma_1.default.review.findMany({
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                        email: true,
+                    },
+                },
+            },
+        });
+    }
+    const reviews = yield prisma_1.default.review.findMany({
+        where: {
+            user: {
+                email,
+            },
         },
     });
-    // const result = await prisma.$transaction(async (tsClient) => {
-    //   const updatedVoteForParticullarUser = await prisma.vote.upsert({
-    //     where: {
-    //       reviewId_userId: {
-    //         reviewId: id,
-    //         userId: isReviewExists.userId,
-    //       },
-    //     },
-    //     update: voteTypes === "upVote" ? { upVote: true } : { downVote: true },
-    //     create: {
-    //       reviewId: id,
-    //       userId: isReviewExists.userId,
-    //       upVote: voteTypes === "upVote" ? true : false,
-    //       downVote: voteTypes === "downVote" ? true : false,
-    //     },
-    //   });
-    // });
-    return result;
+    return reviews;
+});
+const updateReviewStatus = (reviewId, actionType) => __awaiter(void 0, void 0, void 0, function* () {
+    const review = yield prisma_1.default.review.findUnique({ where: { id: reviewId } });
+    if (!review)
+        throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "Review does not exist");
+    if (actionType === "accept") {
+        const result = yield prisma_1.default.review.update({
+            where: {
+                id: reviewId,
+            },
+            data: {
+                isPublished: true
+            },
+        });
+        return result;
+    }
+    else {
+        const result = yield prisma_1.default.review.update({
+            where: {
+                id: reviewId,
+            },
+            data: {
+                isPublished: false
+            },
+        });
+        return result;
+    }
 });
 exports.ReviewServices = {
     createReview,
@@ -305,4 +384,7 @@ exports.ReviewServices = {
     getAllReviewByIdFromDB,
     updateReviewInDB,
     deleteReviewInDB,
+    getMyReviewsromDB,
+    getReviewCountFromDB,
+    updateReviewStatus,
 };

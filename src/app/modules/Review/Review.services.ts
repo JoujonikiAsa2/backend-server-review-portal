@@ -1,6 +1,6 @@
 import { Prisma, Review } from "@prisma/client";
 import prisma from "../../shared/prisma";
-import { TReview, TReviewUpdate } from "./Review.ZodValidations";
+import { TReview } from "./Review.ZodValidations";
 import ApiError from "../../errors/ApiError";
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
@@ -66,24 +66,23 @@ const getAllReviews = async (filterData: any, options: any) => {
   if (filterData.startDate || filterData.endDate) {
     console.log("Date range", filterData.startDate, filterData.endDate);
     const dateRange: any = {};
-    
+
     if (filterData.startDate) {
       dateRange.gte = new Date(filterData.startDate);
     }
-  
+
     if (filterData.endDate) {
       dateRange.lte = new Date(filterData.endDate);
     }
-  
+
     andConditions.push({
       createdAt: dateRange,
     });
-  
+
     delete filterDataWithoutSearchTerm.startDate;
     delete filterDataWithoutSearchTerm.endDate;
   }
-  
-  
+
   if (
     Object.keys(filterDataWithoutSearchTerm) &&
     Object.keys(filterDataWithoutSearchTerm).length > 0
@@ -248,75 +247,153 @@ const deleteReviewInDB = async (id: string, user: JwtPayload) => {
   return result;
 };
 
-const updateVotesInDB = async (
-  id: string,
-  voteTypes: string,
-  count: number
-) => {
-  console.log({
-    id,
-    voteTypes,
-    count,
-  });
+const updateVotesInDB = async (user: any, id: string, voteTypes: string) => {
   if (!id || !voteTypes) throw new ApiError(status.BAD_REQUEST, "Bad Request");
 
-  // Checking is review exists
-  const isReviewExists = await prisma.review.findUnique({
-    where: {
-      id,
-    },
+  const review = await prisma.review.findUnique({ where: { id } });
+  if (!review) throw new ApiError(status.NOT_FOUND, "Review does not exist");
+
+  const tokenUser = await prisma.user.findUnique({
+    where: { email: user?.email },
   });
-  console.log("isReviewExists", isReviewExists);
-  const currentVotes = await prisma.review.findUnique({
+  if (!tokenUser) throw new ApiError(status.NOT_FOUND, "User does not exist");
+
+  const existingVote = await prisma.vote.findUnique({
     where: {
-      id,
-    },
-    select: {
-      upVotes: true,
-      downVotes: true,
-    },
-  });
-  if (
-    (currentVotes?.upVotes === 0 && count < 0) ||
-    (currentVotes?.downVotes === 0 && count < 0)
-  )
-    throw new ApiError(status.BAD_REQUEST, "Bad Request");
-  if (!isReviewExists)
-    throw new ApiError(status.NOT_FOUND, "Review Not Found.");
-  const result = await prisma.review.update({
-    where: {
-      id,
-    },
-    data: {
-      [voteTypes]: {
-        increment: count,
+      reviewId_userId: {
+        userId: tokenUser.id,
+        reviewId: id,
       },
     },
-    select: {
-      upVotes: true,
-      downVotes: true,
+  });
+
+  let upVotes = review.upVotes;
+  let downVotes = review.downVotes;
+
+  let voteData: { upVote: boolean; downVote: boolean } = {
+    upVote: false,
+    downVote: false,
+  };
+
+  if (voteTypes === "upVotes") {
+    if (existingVote?.upVote) {
+      upVotes--;
+    } else if (existingVote?.upVote) {
+      if (existingVote?.downVote) {
+        downVotes--;
+      }
+      upVotes++;
+      voteData.upVote = true;
+    } else {
+      if (existingVote?.downVote) {
+        downVotes--;
+      }
+      upVotes++;
+      voteData.upVote = true;
+    }
+  } else if (voteTypes === "downVotes") {
+    if (existingVote?.downVote) {
+      downVotes--;
+    } else {
+      if (existingVote?.upVote) {
+        upVotes--;
+      }
+      downVotes++;
+      voteData.downVote = true;
+    }
+  } else if (voteTypes === "removeVote") {
+    if (existingVote?.upVote) {
+      upVotes--;
+    }
+    if (existingVote?.downVote) {
+      downVotes--;
+    }
+  }
+
+  await prisma.$transaction([
+    prisma.vote.upsert({
+      where: {
+        reviewId_userId: {
+          userId: tokenUser.id,
+          reviewId: id,
+        },
+      },
+      update: voteData,
+      create: {
+        userId: tokenUser.id,
+        reviewId: id,
+        ...voteData,
+      },
+    }),
+    prisma.review.update({
+      where: { id },
+      data: {
+        upVotes,
+        downVotes,
+      },
+    }),
+  ]);
+
+  return { success: true, upVotes, downVotes };
+};
+
+const getReviewCountFromDB = async () => {
+  const reviews = await prisma.review.count({});
+  return reviews;
+};
+
+const getMyReviewsromDB = async (user: JwtPayload) => {
+  const { userRole, email } = user;
+  console.log("get my reviews", user);
+  if (userRole === "admin") {
+    console.log("admin");
+    return await prisma.review.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+  const reviews = await prisma.review.findMany({
+    where: {
+      user: {
+        email,
+      },
     },
   });
-  // const result = await prisma.$transaction(async (tsClient) => {
 
-  //   const updatedVoteForParticullarUser = await prisma.vote.upsert({
-  //     where: {
-  //       reviewId_userId: {
-  //         reviewId: id,
-  //         userId: isReviewExists.userId,
-  //       },
-  //     },
-  //     update: voteTypes === "upVote" ? { upVote: true } : { downVote: true },
-  //     create: {
-  //       reviewId: id,
-  //       userId: isReviewExists.userId,
-  //       upVote: voteTypes === "upVote" ? true : false,
-  //       downVote: voteTypes === "downVote" ? true : false,
-  //     },
-  //   });
-  // });
+  return reviews;
+};
 
-  return result;
+const updateReviewStatus = async (reviewId: string, actionType: string) => {
+  const review = await prisma.review.findUnique({ where: { id: reviewId } });
+  if (!review) throw new ApiError(status.NOT_FOUND, "Review does not exist");
+  if(actionType === "accept"){
+    const result = await prisma.review.update({
+      where: {
+        id: reviewId,
+      },
+      data: {
+        isPublished: true
+      },
+    });
+    return result;
+  }
+  else{
+    const result = await prisma.review.update({
+      where: {
+        id: reviewId,
+      },
+      data: {
+        isPublished: false
+      },
+    });
+    return result;
+  }
 };
 
 export const ReviewServices = {
@@ -326,4 +403,7 @@ export const ReviewServices = {
   getAllReviewByIdFromDB,
   updateReviewInDB,
   deleteReviewInDB,
+  getMyReviewsromDB,
+  getReviewCountFromDB,
+  updateReviewStatus,
 };
