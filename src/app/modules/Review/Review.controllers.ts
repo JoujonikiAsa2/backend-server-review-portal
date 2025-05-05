@@ -15,6 +15,17 @@ const createReview = catchAsync(async (req, res) => {
     data: result,
   });
 });
+const GetReviewCount = catchAsync(async (req, res) => {
+  //req.user exists
+  const result = await ReviewServices.GetReviewCountFromDB();
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: `Review Count ${result}.`,
+    data: result,
+  });
+});
 
 const GetAllReview = catchAsync(async (req, res) => {
   const filterData = pick(req.query, [
@@ -32,7 +43,7 @@ const GetAllReview = catchAsync(async (req, res) => {
     success: true,
     meta: {
       total: result.length,
-      page: Number(options.page) || 1,
+      page: Number(options.page) * Number(options.limit) || 1,
       limit: Number(options.limit) || 10,
     },
     message: "Reviews fetched Successfully.",
@@ -40,8 +51,23 @@ const GetAllReview = catchAsync(async (req, res) => {
   });
 });
 
+const GetMyReviews = catchAsync(async (req, res) => {
+  const result = await ReviewServices.GetMyReviewsromDB(req.user);
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
+    success: true,
+    message: "Reviews fetchedd Successfully.",
+    data: result,
+  });
+});
+
 const GetReviewById = catchAsync(async (req, res) => {
-  const result = await ReviewServices.getAllReviewByIdFromDB(req.params.id);
+  const { action } = req.query;
+  const result = await ReviewServices.getAllReviewByIdFromDB(
+    req.params.id,
+    action as string
+  );
 
   sendResponse(res, {
     statusCode: status.CREATED,
@@ -83,7 +109,7 @@ const updateVotes = catchAsync(async (req, res) => {
   const result = await ReviewServices.updateVotesInDB(
     req.params.id,
     req?.query?.voteType as string,
-    Number(req.query.count)  
+    Number(req.query.count)
   );
 
   sendResponse(res, {
@@ -101,4 +127,6 @@ export const ReviewControllers = {
   GetReviewById,
   updateReview,
   deleteReview,
+  GetReviewCount,
+  GetMyReviews,
 };

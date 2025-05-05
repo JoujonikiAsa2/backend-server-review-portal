@@ -14,10 +14,12 @@ export const UploadToCloudinary: RequestHandler = async function (
 ) {
   // console.log({ body: req.body, file: req.file });
   const buffer = req.file?.buffer!;
+  console.log("req body 1", buffer);
+
   if (req.body.data) {
     req.body = JSON.parse(req.body.data);
   }
-
+  console.log("req body", req.body);
   return new Promise((res, rej) => {
     if (buffer) {
       const theTransformStream = cloudinary.uploader.upload_stream(
@@ -29,6 +31,7 @@ export const UploadToCloudinary: RequestHandler = async function (
           if (err) return rej(err);
           if (result) {
             req.body.imageUrl = result?.secure_url;
+            console.log("req body", req.body);
             next();
           }
         }

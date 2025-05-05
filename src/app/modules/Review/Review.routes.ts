@@ -15,12 +15,22 @@ router.get(
   //  AuthGurd(UserRole.ADMIN),
   ReviewControllers.GetAllReview
 );
+
+router.get(
+  "/my-reviews",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  ReviewControllers.GetMyReviews
+);
+
+
 router.get(
   "/:id",
   //  AuthGurd(UserRole.ADMIN),
   ReviewControllers.GetReviewById
 );
 
+
+router.get("/count", ReviewControllers.GetReviewCount);
 // Create review
 router.post(
   "/create",
@@ -37,7 +47,6 @@ router.patch(
   AuthGurd(UserRole.USER, UserRole.ADMIN),
   UploadImageInServer.single("file"),
   UploadToCloudinary,
-  validateRequest(ReviewSchemas.reviewUpdateSchema),
   ReviewControllers.updateReview
 );
 

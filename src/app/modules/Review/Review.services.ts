@@ -7,7 +7,7 @@ import { JwtPayload } from "jsonwebtoken";
 
 const createReview = async (
   user: JwtPayload,
-  payload: TReview 
+  payload: TReview
 ): Promise<Review> => {
   // Find User
   const foundUser = await prisma.user.findUnique({
@@ -29,7 +29,7 @@ const createReview = async (
     isPremium: user?.userRole.toUpperCase() === "ADMIN" ? true : false,
     price: user?.userRole.toUpperCase() === "ADMIN" ? Number(payload.price) : 0,
   };
-
+  console.log("review data", reviewData);
   // Create the review
   const review = await prisma.review.create({
     data: reviewData,
@@ -106,24 +106,74 @@ const getAllReviews = async (filterData: any, options: any) => {
 
   return reviews;
 };
-const getAllReviewByIdFromDB = async (id: string) => {
-  const reviews = await prisma.review.findUnique({
-    where: {
-      id,
-      isPublished: true,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          imageUrl: true,
+const GetMyReviewsromDB = async (user: JwtPayload) => {
+  const { userRole, email } = user;
+  console.log("get my reviews", user);
+  if (userRole === "admin") {
+    console.log("admin");
+    return await prisma.review.findMany({
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
         },
+      },
+    });
+  }
+  const reviews = await prisma.review.findMany({
+    where: {
+      user: {
+        email,
       },
     },
   });
 
+  return reviews;
+};
+const getAllReviewByIdFromDB = async (id: string, action?: string) => {
+  let reviews;
+  console.log("action type", action);
+  if (action) {
+    reviews = await prisma.review.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+  } else {
+    reviews = await prisma.review.findUnique({
+      where: {
+        id,
+        isPublished: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+  }
+  console.log("reviews", reviews);
+  return reviews;
+};
+const GetReviewCountFromDB = async () => {
+  const reviews = await prisma.review.count({});
   return reviews;
 };
 
@@ -145,7 +195,6 @@ const updateReviewInDB = async (
     },
   });
 
-  console.log("passed 1");
   if (!isReviewCreatorExists)
     throw new ApiError(status.NOT_FOUND, "Review Creator Not Found.");
   // Check is review exists
@@ -155,8 +204,14 @@ const updateReviewInDB = async (
       userId: isReviewCreatorExists.id,
     },
   });
-  console.log("passed 2");
-
+  const nonEmptyPayload: Partial<TReview> = {};
+  // Delete non empty fields
+  (Object.keys(payload) as (keyof Partial<TReview>)[]).forEach((key) => {
+    const value = payload[key];
+    if (value !== undefined && value !== null && value !== "") {
+      nonEmptyPayload[key] = value!;
+    }
+  });
   if (!isReviewExists)
     throw new ApiError(status.NOT_FOUND, "Review Not Found.");
   const result = await prisma.review.update({
@@ -164,7 +219,7 @@ const updateReviewInDB = async (
       id,
       userId: isReviewCreatorExists.id,
     },
-    data: payload,
+    data: nonEmptyPayload,
   });
   return result;
 };
@@ -286,4 +341,6 @@ export const ReviewServices = {
   getAllReviewByIdFromDB,
   updateReviewInDB,
   deleteReviewInDB,
+  GetReviewCountFromDB,
+  GetMyReviewsromDB,
 };
