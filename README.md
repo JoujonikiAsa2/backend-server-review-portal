@@ -1,106 +1,157 @@
-# Express Typescript PostgreSQL Starter
+# 🌟 Product Review Portal
 
-A robust Review Product portal server for building REST APIs using Express.js, PostgreSQL, Prisma ORM, and TypeScript.
+A **full-stack web application** for sharing and managing product reviews with **user interactions**, **premium content access**, and **admin moderation**. Built using **modern web technologies** for **scalability** and **performance**.
 
-## Features
+---
 
-- 🚀 Express.js with TypeScript
-- 📦 PostgreSQL database with Prisma ORM
-- ⚡ Rate Limiting
-- 🌐 CORS enabled
-- 🔄 Request Validation using Zod
-- 🎯 Error Handling
-- 🔒 Environment Variables Support
+## 🚀 Features
 
-## Prerequisites
+### 👤 **User Features**
 
-- Node.js (v14 or higher)
-- PostgreSQL
-- npm/yarn
+- 🔐 **Secure JWT authentication** (email/password)
+- 📝 **Create/edit/delete reviews** with **ratings** (1–5), **categories**, and **optional media**
+- 👍 **Vote** & 💬 **comment** on both **free** and **premium** reviews
+- 🔍 **Search & filter** reviews by **category**, **rating**, or **keywords**
+- 💰 **Premium content access** via **one-time payment** (Stripe)
 
-## Getting Started
+### 🛠️ **Admin Features**
 
-1. Clone the repository:
+- 🧹 **Review moderation dashboard** (approve/unpublish)
+- 💎 **Create premium reviews** with **dynamic pricing**
+- 📊 **Payment analytics** (earnings, popular content)
+- 🚫 **Moderate & delete comments**
 
-```sh
-git clone <repository-url>
-cd express-typescript-postgresql-starter
-```
+### 💳 **Payment Flow**
 
-2. Install dependencies:
+- 🔒 Preview **locked premium content** with **clear CTA** to unlock
+- 🧾 **Instant access** post-payment via secure gateway
+- 📘 **User payment history** tracking
 
-```sh
+---
+
+## 🧰 **Tech Stack**
+
+### 🖼️ **Frontend**
+
+- ⚛️ **Next.js** (SSR/SSG)
+- 🎨 **Tailwind CSS & ShandcnUi**
+
+### 🔙 **Backend**
+
+- 🟩 **Node.js** with **Express.js**
+- 🔧 **Prisma ORM**
+
+### 🗄️ **Database**
+
+- 🐘 **PostgreSQL**
+
+---
+
+## ⚙️ **Installation**
+
+### 1️⃣ **Backend Setup**
+
+```bash
+cd backend
 npm install
-```
-
-3. Configure environment variables:
-
-```sh
-cp  .env
-```
-
-Fill in the `.env` file with your configuration:
-
-- `NODE_ENV`: development or production
-- `DATABASE_URL`: Your PostgreSQL connection string
-- `PORT`: Server port (default: 5000)
-- `JWT_SECRET`: Secret key for JWT tokens
-- Other JWT configuration variables
-
-4. Run database migrations:
-
-```sh
 npx prisma migrate dev
-```
-
-5. Start development server:
-
-```sh
 npm run dev
 ```
 
-## Available Scripts
+## Frontend setup
 
-- `npm run dev` - Start development server with hot-reload
-- `npm run build` - Build for production
-- `npm start` - Start production server
-- `npm run start:prod` - Run the built production server
-
-## API Routes
-
-- Auth Routes (`/api/v1/auth`)
-  - POST `/login` - User login
-
-## Project Structure
-
-```
-src/
-  ├── app/
-  │   ├── errors/
-  │   ├── middleware/
-  │   ├── modules/
-  │   ├── routes/
-  │   └── shared/
-  ├── config/
-  ├── helpers/
-  ├── app.ts
-  └── server.ts
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
-## Error Handling
+## 📡 **API Endpoints**
 
-The application includes a global error handler and custom `ApiError` class for consistent error responses.
+> 🔗 **Base URL**: `http://localhost:5000/api`
 
-## Database
+---
 
-- PostgreSQL with Prisma ORM
-- Structured database schema
-- Efficient query handling
+### 👥 **Auth Routes**
 
-## Deployment
+| Method | Endpoint         | Description                 |
+| ------ | ---------------- | --------------------------- |
+| POST   | `/auth/register` | Register a new user         |
+| POST   | `/auth/login`    | Login and receive JWT token |
+| GET    | `/auth/profile`  | Get current user's profile  |
 
-The project includes Vercel deployment configuration in `vercel.json`.
+---
 
-## License
+### 📝 **Review Routes**
 
-[MIT License](LICENSE)
+| Method | Endpoint       | Description         |
+| ------ | -------------- | ------------------- |
+| GET    | `/reviews`     | Get all reviews     |
+| GET    | `/reviews/:id` | Get review by ID    |
+| POST   | `/reviews`     | Create a new review |
+| PUT    | `/reviews/:id` | Update a review     |
+| DELETE | `/reviews/:id` | Delete a review     |
+
+---
+
+### ⭐ **Rating & Voting**
+
+| Method | Endpoint             | Description                 |
+| ------ | -------------------- | --------------------------- |
+| POST   | `/reviews/:id/vote`  | Upvote or downvote a review |
+| GET    | `/reviews/:id/votes` | Get vote count for a review |
+
+---
+
+### 💬 **Comments**
+
+| Method | Endpoint                | Description                  |
+| ------ | ----------------------- | ---------------------------- |
+| GET    | `/reviews/:id/comments` | Get all comments on a review |
+| POST   | `/reviews/:id/comments` | Add a comment to a review    |
+| DELETE | `/comments/:commentId`  | Delete a comment             |
+
+---
+
+### 🛍️ **Premium Content**
+
+| Method | Endpoint               | Description                                 |
+| ------ | ---------------------- | ------------------------------------------- |
+| GET    | `/reviews/premium`     | Get all premium reviews                     |
+| GET    | `/reviews/premium/:id` | Get a specific premium review (if unlocked) |
+| POST   | `/payments/initiate`   | Start payment via SSLCommerz/ShurjoPay      |
+| POST   | `/payments/verify`     | Verify and unlock premium review            |
+| GET    | `/payments/history`    | Get user's payment history                  |
+
+---
+
+### 🛠️ **Admin Panel**
+
+| Method | Endpoint              | Description                       |
+| ------ | --------------------- | --------------------------------- |
+| GET    | `/admin/reviews`      | List all reviews (for moderation) |
+| PUT    | `/admin/reviews/:id`  | Approve/unpublish a review        |
+| DELETE | `/admin/reviews/:id`  | Delete a review                   |
+| GET    | `/admin/payments`     | View all payments                 |
+| GET    | `/admin/comments`     | View all comments                 |
+| DELETE | `/admin/comments/:id` | Delete or moderate a comment      |
+
+---
+
+### 🗂️ **Categories & Filters**
+
+| Method | Endpoint                   | Description                |
+| ------ | -------------------------- | -------------------------- |
+| GET    | `/categories`              | Get all review categories  |
+| GET    | `/reviews?category=tech`   | Filter reviews by category |
+| GET    | `/reviews?rating=5`        | Filter reviews by rating   |
+| GET    | `/reviews?search=keyboard` | Search reviews by keyword  |
+
+### 📊 **Admin Analytics**
+
+| Method | Endpoint                           | Description                                                                               |
+| ------ | ---------------------------------- | ----------------------------------------------------------------------------------------- |
+| GET    | `/admin/analytics/`                | Get total earnings, revenue breakdown by review type (premium vs free), and monthly stats |
+| GET    | `/admin/analytics/popular-content` | Get top-rated and most viewed reviews (both free and premium)                             |
+
+---

@@ -1,9 +1,5 @@
 import express from "express";
-import auth from "../../middleware/AuthGurd";
-import validateRequest from "../../middleware/validateRequest";
-import AuthGurd from "../../middleware/AuthGurd";
 import { PayementControllers } from "./Payment.controllers";
-import { PaymentSchemas } from "./Payment.ZodValidations";
 
 const router = express.Router();
 // Get all Payments

@@ -1,8 +1,7 @@
-import { Request, Response } from "express";
-import catchAsync from "../../shared/catchAsync";
-import { UserServices } from "./User.services";
-import sendResponse from "../../shared/sendResponse";
 import status from "http-status";
+import catchAsync from "../../shared/catchAsync";
+import sendResponse from "../../shared/sendResponse";
+import { UserServices } from "./User.services";
 
 const registerUser = catchAsync(async (req, res) => {
   const result = await UserServices.registerUserIntoDB(req.body);
@@ -30,7 +29,7 @@ const GetAllUsers = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: status.CREATED,
     success: true,
-    message: "User Created Successfully.",
+    message: "Fetch all Users successfully.",
     data: result,
   });
 });

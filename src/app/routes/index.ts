@@ -1,5 +1,6 @@
 import express from "express";
 
+import { AdminAnalyticesRoutes } from "../modules/AdminAnalytices/AdminAnalytice.routes";
 import { AuthRoutes } from "../modules/Auth/auth.routes";
 import { PaymentRoutes } from "../modules/Payment/Payment.routes";
 import { ReviewRoutes } from "../modules/Review/Review.routes";
@@ -23,6 +24,10 @@ const moduleRoutes = [
   {
     path: "/review",
     route: ReviewRoutes,
+  },
+  {
+    path: "/admin",
+    route: AdminAnalyticesRoutes,
   },
 ];
 
