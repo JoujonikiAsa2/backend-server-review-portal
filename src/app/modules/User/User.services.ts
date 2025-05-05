@@ -1,12 +1,9 @@
-import { JwtPayload, Secret } from "jsonwebtoken";
-import config from "../../../config";
-import { jwtHelpers } from "../../../helpers/jwtHelpers";
-import { findUserByEmail } from "../../../helpers/userHelpers";
+import bcrypt from "bcrypt";
+import status from "http-status";
+import { JwtPayload } from "jsonwebtoken";
 import ApiError from "../../errors/ApiError";
 import prisma from "../../shared/prisma";
-import bcrypt from "bcrypt";
 import { TUpdateUser, TUser } from "./User.ZodValidations";
-import status from "http-status";
 
 const registerUserIntoDB = async (payload: TUser) => {
   const { name, email, password } = payload;

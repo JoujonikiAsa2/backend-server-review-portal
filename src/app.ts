@@ -1,8 +1,8 @@
-import express, { Application, NextFunction, Request, Response } from "express";
-import cors from "cors";
 import cookieParser from "cookie-parser";
-import router from "./app/routes";
+import cors from "cors";
+import express, { Application, NextFunction, Request, Response } from "express";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
+import router from "./app/routes";
 
 const app: Application = express();
 // CORS configuration
