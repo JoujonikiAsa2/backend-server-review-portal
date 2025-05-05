@@ -1,6 +1,6 @@
 import { Prisma, Review } from "@prisma/client";
 import prisma from "../../shared/prisma";
-import { TReview, TReviewUpdate } from "./Review.ZodValidations";
+import { TReview } from "./Review.ZodValidations";
 import ApiError from "../../errors/ApiError";
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";

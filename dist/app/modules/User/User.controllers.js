@@ -29,18 +29,18 @@ const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
 const updateUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield User_services_1.UserServices.updateUserInDB(req.user, req.body);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         success: true,
-        message: "User updated Successfully.",
+        message: "User Updated Successfully.",
         data: result,
     });
 }));
 const GetAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield User_services_1.UserServices.GetAllUsersFromDB();
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         success: true,
-        message: "Fetch all Users successfully.",
+        message: "Users Fetched successfully.",
         data: result,
     });
 }));

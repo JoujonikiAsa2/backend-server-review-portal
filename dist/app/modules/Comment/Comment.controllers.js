@@ -22,16 +22,16 @@ const PostComment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
-        message: "Comment uploaded Successfully.",
+        message: "Comment Uploaded Successfully.",
         data: result,
     });
 }));
 const GetAllCommentById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield Comment_services_1.CommentServices.GetAllCommentFromDbByReviewId(req.params.id);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         success: true,
-        message: "Comment data fetched Successfully.",
+        message: "Comments Fetched Successfully.",
         meta: {
             total: result.length || 0,
             limit: 0,
@@ -44,18 +44,18 @@ const GetAllCommentById = (0, catchAsync_1.default)((req, res) => __awaiter(void
 const updateComment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield Comment_services_1.CommentServices.UpdateCommentOfReview(req.user, req.params.id, req.body.content);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         success: true,
-        message: "Comment updated Successfully.",
+        message: "Comment Updated Successfully.",
         data: result,
     });
 }));
 const deleteComment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield Comment_services_1.CommentServices.DeleteCommentOfReview(req.user, req.params.id);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         success: true,
-        message: "Comment deleted Successfully.",
+        message: "Comment Deleted Successfully.",
         data: null,
     });
 }));
