@@ -4,10 +4,11 @@ import { TReview, TReviewUpdate } from "./Review.ZodValidations";
 import ApiError from "../../errors/ApiError";
 import status from "http-status";
 import { JwtPayload } from "jsonwebtoken";
+import { paginationHelper } from "../../../helpers/paginationHelper";
 
 const createReview = async (
   user: JwtPayload,
-  payload: TReview 
+  payload: TReview
 ): Promise<Review> => {
   // Find User
   const foundUser = await prisma.user.findUnique({
@@ -50,8 +51,9 @@ const createReview = async (
 };
 
 const getAllReviews = async (filterData: any, options: any) => {
+  const { page, skip, limit } = paginationHelper.calculatePagination(options);
   const { searchTerm, ...filterDataWithoutSearchTerm } = filterData;
-  console.log(options);
+
   const andConditions: Prisma.ReviewWhereInput[] = [];
   if (searchTerm) {
     andConditions.push({
@@ -61,6 +63,27 @@ const getAllReviews = async (filterData: any, options: any) => {
       },
     });
   }
+  if (filterData.startDate || filterData.endDate) {
+    console.log("Date range", filterData.startDate, filterData.endDate);
+    const dateRange: any = {};
+    
+    if (filterData.startDate) {
+      dateRange.gte = new Date(filterData.startDate);
+    }
+  
+    if (filterData.endDate) {
+      dateRange.lte = new Date(filterData.endDate);
+    }
+  
+    andConditions.push({
+      createdAt: dateRange,
+    });
+  
+    delete filterDataWithoutSearchTerm.startDate;
+    delete filterDataWithoutSearchTerm.endDate;
+  }
+  
+  
   if (
     Object.keys(filterDataWithoutSearchTerm) &&
     Object.keys(filterDataWithoutSearchTerm).length > 0
@@ -82,8 +105,8 @@ const getAllReviews = async (filterData: any, options: any) => {
       isPublished: true,
       AND: andConditions,
     },
-    skip: Number(options.page - 1) || 0,
-    take: Number(options.limit) || 10,
+    skip: skip,
+    take: limit,
     include: {
       user: {
         select: {
@@ -104,7 +127,24 @@ const getAllReviews = async (filterData: any, options: any) => {
           },
   });
 
-  return reviews;
+  const reviewCount = await prisma.review.count();
+
+  const filteredReviews = await prisma.review.count({
+    where: {
+      isPublished: true,
+      AND: andConditions,
+    },
+  });
+
+  return {
+    meta: {
+      totalPage: Math.ceil(reviewCount / limit),
+      total: filteredReviews,
+      limit,
+      page,
+    },
+    data: reviews,
+  };
 };
 const getAllReviewByIdFromDB = async (id: string) => {
   const reviews = await prisma.review.findUnique({

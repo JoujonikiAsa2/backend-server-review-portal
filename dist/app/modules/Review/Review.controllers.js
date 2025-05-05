@@ -17,7 +17,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../shared/sendResponse"));
 const Review_services_1 = require("./Review.services");
-const pick_1 = require("../../../helpers/pick.");
+const pick_1 = require("../../../helpers/pick");
 const createReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     //req.user exists
     const result = yield Review_services_1.ReviewServices.createReview(req.user, req.body);
@@ -34,20 +34,17 @@ const GetAllReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         "title",
         "category",
         "RatingSummary",
+        "startDate",
+        "endDate"
     ]);
     const options = (0, pick_1.pick)(req.query, ["page", "limit", "sortBy", "sortOrder"]);
     const result = yield Review_services_1.ReviewServices.getAllReviews(filterData, options);
-    console.log("filterData", filterData);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
-        meta: {
-            total: result.length,
-            page: Number(options.page) || 1,
-            limit: Number(options.limit) || 10,
-        },
         message: "Reviews fetched Successfully.",
-        data: result,
+        meta: result.meta,
+        data: result.data,
     });
 }));
 const GetReviewById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -76,7 +73,7 @@ const deleteReview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         statusCode: http_status_1.default.CREATED,
         success: true,
         message: "Review deleted Successfully.",
-        data: result,
+        data: null,
     });
 }));
 const updateVotes = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {

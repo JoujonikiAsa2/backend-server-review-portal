@@ -23,7 +23,10 @@ const GetAllCommentById = catchAsync(async (req, res) => {
     success: true,
     message: "Comment data fetched Successfully.",
     meta: {
-      total: result.length,
+      total: result.length || 0,
+      limit: 0,
+      page: 0,
+      totalPage: 0
     },
     data: result,
   });
@@ -53,7 +56,7 @@ const deleteComment = catchAsync(async (req, res) => {
     statusCode: status.CREATED,
     success: true,
     message: "Comment deleted Successfully.",
-    data: result,
+    data: null,
   });
 });
 

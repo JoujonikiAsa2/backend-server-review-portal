@@ -49,7 +49,7 @@ const createPaymentInDB = async (payload: TPayment) => {
 
   const paymentInfo = await prisma.payment.create({
     data: {
-      amount: 200,
+      amount: reviewInfo.price || 0,
       completedAt: new Date(),
       currency: "bdt",
       reviewId: reviewInfo.id,
@@ -57,15 +57,15 @@ const createPaymentInDB = async (payload: TPayment) => {
       userId: userInfo.id,
       transactionId: payload.transactionId,
       paymentStatus: PaymentStatus.CONFIRMED,
-      paymentMethod: payload.paymentMethod ?? "card"
+      paymentMethod: payload.paymentMethod ?? "card",
     },
   });
 
-await prisma.premiumPurchaseReview.create({
+  await prisma.premiumPurchaseReview.create({
     data: {
       userId: userInfo.id,
       reviewId: reviewInfo.id,
-      paymentId: paymentInfo.id
+      paymentId: paymentInfo.id,
     },
   });
 
@@ -76,10 +76,10 @@ await prisma.premiumPurchaseReview.create({
     transactionId: paymentInfo.transactionId,
     reviewId: reviewInfo.id,
     amount: reviewInfo.price,
-    completedAt: paymentInfo.completedAt
-  }
+    completedAt: paymentInfo.completedAt,
+  };
 
-  sendMail(emailInfo)
+  sendMail(emailInfo);
 
   return paymentInfo;
 };
@@ -103,6 +103,15 @@ const getPaymentsByEmail = async (email: string) => {
   return result;
 };
 
+const getPaymentById = async (id: string) => {
+  const result = await prisma.payment.findFirst({
+    where: {
+      id: id,
+    },
+  });
+  return result;
+};
+
 const getAllPaymentsFromDB = async () => {
   const result = await prisma.payment.findMany({});
   return result;
@@ -112,5 +121,6 @@ export const PaymentServices = {
   createChechoutSession,
   createPaymentInDB,
   getPaymentsByEmail,
+  getPaymentById,
   getAllPaymentsFromDB,
 };

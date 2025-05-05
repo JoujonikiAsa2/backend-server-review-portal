@@ -33,7 +33,10 @@ const GetAllCommentById = (0, catchAsync_1.default)((req, res) => __awaiter(void
         success: true,
         message: "Comment data fetched Successfully.",
         meta: {
-            total: result.length,
+            total: result.length || 0,
+            limit: 0,
+            page: 0,
+            totalPage: 0
         },
         data: result,
     });
@@ -53,7 +56,7 @@ const deleteComment = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         statusCode: http_status_1.default.CREATED,
         success: true,
         message: "Comment deleted Successfully.",
-        data: result,
+        data: null,
     });
 }));
 exports.CommentControllers = {
