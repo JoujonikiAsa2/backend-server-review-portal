@@ -9,16 +9,22 @@ const express_1 = __importDefault(require("express"));
 const globalErrorHandler_1 = __importDefault(require("./app/middleware/globalErrorHandler"));
 const routes_1 = __importDefault(require("./app/routes"));
 const app = (0, express_1.default)();
-// Enhanced CORS configuration
-const corsOptions = {
-    origin: true, // Reflects the request origin
-    credentials: true, // Required for cookies, authorization headers
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
-};
-app.use((0, cors_1.default)(corsOptions));
-// Handle preflight requests
-app.options('*', (0, cors_1.default)(corsOptions)); // Enable preflight for all routes
+const allowedOrigins = ['http://localhost:3000', 'http://localhost:5174', 'https://backend-server-review-portal.vercel.app'];
+app.use((0, cors_1.default)({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, origin);
+        }
+        else {
+            callback(new Error('The CORS policy does not allow this origin'), false);
+        }
+    },
+    credentials: true,
+}));
+app.use((0, cors_1.default)({
+    origin: true,
+    credentials: true
+}));
 app.use((0, cookie_parser_1.default)());
 // Parsers
 app.use(express_1.default.json());
