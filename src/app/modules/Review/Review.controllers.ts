@@ -3,6 +3,7 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import { ReviewServices } from "./Review.services";
 import { pick } from "../../../helpers/pick";
+import { Request } from "express";
 
 const createReview = catchAsync(async (req, res) => {
   //req.user exists
@@ -23,16 +24,16 @@ const GetAllReview = catchAsync(async (req, res) => {
     "category",
     "RatingSummary",
     "startDate",
-    "endDate"
+    "endDate",
   ]);
   const options = pick(req.query, ["page", "limit", "sortBy", "sortOrder"]);
 
   const result = await ReviewServices.getAllReviews(filterData, options);
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Reviews fetched Successfully.",
+    message: "Reviews Fetched Successfully.",
     meta: result.meta,
     data: result.data,
   });
@@ -42,9 +43,9 @@ const GetReviewById = catchAsync(async (req, res) => {
   const result = await ReviewServices.getAllReviewByIdFromDB(req.params.id);
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Reviews fetched Successfully.",
+    message: "Review Fetched Successfully.",
     data: result,
   });
 });
@@ -58,9 +59,9 @@ const updateReview = catchAsync(async (req, res) => {
   );
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Review updated Successfully.",
+    message: "Review Updated Successfully.",
     data: result,
   });
 });
@@ -70,24 +71,25 @@ const deleteReview = catchAsync(async (req, res) => {
   const result = await ReviewServices.deleteReviewInDB(req.params.id, req.user);
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Review deleted Successfully.",
+    message: "Review Deleted Successfully.",
     data: null,
   });
 });
 
-const updateVotes = catchAsync(async (req, res) => {
+const updateVotes = catchAsync(async (req: Request & { user?: any }, res) => {
+  const user = req?.user;
   const result = await ReviewServices.updateVotesInDB(
+    user,
     req.params.id,
-    req?.query?.voteType as string,
-    Number(req.query.count)
+    req?.query?.voteType as string
   );
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Vote updated Successfully.",
+    message: "Vote Updated Successfully.",
     data: result,
   });
 });

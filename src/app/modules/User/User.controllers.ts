@@ -18,9 +18,9 @@ const updateUser = catchAsync(async (req, res) => {
   const result = await UserServices.updateUserInDB(req.user, req.body);
 
   sendResponse(res, {
-    statusCode: status.CREATED, 
+    statusCode: status.OK, 
     success: true,
-    message: "User updated Successfully.",
+    message: "User Updated Successfully.",
     data: result,
   });
 });
@@ -28,9 +28,9 @@ const GetAllUsers = catchAsync(async (req, res) => {
   const result = await UserServices.GetAllUsersFromDB();
 
   sendResponse(res, {
-    statusCode: status.CREATED,
+    statusCode: status.OK,
     success: true,
-    message: "Fetch all Users successfully.",
+    message: "Users Fetched successfully.",
     data: result,
   });
 });
