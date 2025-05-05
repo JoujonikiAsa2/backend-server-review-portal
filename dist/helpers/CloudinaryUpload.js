@@ -26,9 +26,11 @@ const UploadToCloudinary = function (req, res, next) {
         var _a;
         // console.log({ body: req.body, file: req.file });
         const buffer = (_a = req.file) === null || _a === void 0 ? void 0 : _a.buffer;
+        console.log("req body 1", buffer);
         if (req.body.data) {
             req.body = JSON.parse(req.body.data);
         }
+        console.log("req body", req.body);
         return new Promise((res, rej) => {
             var _a;
             if (buffer) {
@@ -40,6 +42,7 @@ const UploadToCloudinary = function (req, res, next) {
                         return rej(err);
                     if (result) {
                         req.body.imageUrl = result === null || result === void 0 ? void 0 : result.secure_url;
+                        console.log("req body", req.body);
                         next();
                     }
                 });
