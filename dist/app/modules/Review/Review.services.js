@@ -148,23 +148,64 @@ const getAllReviews = (filterData, options) => __awaiter(void 0, void 0, void 0,
         data: reviews,
     };
 });
-const getAllReviewByIdFromDB = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const reviews = yield prisma_1.default.review.findUnique({
-        where: {
-            id,
-            isPublished: true,
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    imageUrl: true,
+// const getAllReviewByIdFromDB = async (id: string) => {
+//   const reviews = await prisma.review.findUnique({
+//     where: {
+//       id,
+//       isPublished: true,
+//     },
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           name: true,
+//           email: true,
+//           imageUrl: true,
+//         },
+//       },
+//     },
+//   });
+//   return reviews;
+// };
+const getAllReviewByIdFromDB = (id, action) => __awaiter(void 0, void 0, void 0, function* () {
+    let reviews;
+    console.log("action type", action);
+    if (action) {
+        reviews = yield prisma_1.default.review.findUnique({
+            where: {
+                id,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        imageUrl: true,
+                    },
                 },
             },
-        },
-    });
+        });
+    }
+    else {
+        reviews = yield prisma_1.default.review.findUnique({
+            where: {
+                id,
+                isPublished: true,
+            },
+            include: {
+                user: {
+                    select: {
+                        id: true,
+                        name: true,
+                        email: true,
+                        imageUrl: true,
+                    },
+                },
+            },
+        });
+    }
+    // console.log("reviews", reviews);
     return reviews;
 });
 const updateReviewInDB = (user, id, payload) => __awaiter(void 0, void 0, void 0, function* () {
