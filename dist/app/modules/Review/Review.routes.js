@@ -16,6 +16,12 @@ const router = express_1.default.Router();
 router.get("/", 
 //  AuthGurd(UserRole.ADMIN),
 Review_controllers_1.ReviewControllers.GetAllReview);
+router.get("/unpublished", (0, AuthGurd_1.default)(client_1.UserRole.ADMIN), Review_controllers_1.ReviewControllers.getUnpublishedReviews);
+router.get("/my-reviews", (0, AuthGurd_1.default)(client_1.UserRole.USER, client_1.UserRole.ADMIN), Review_controllers_1.ReviewControllers.getMyReviews);
+router.get("/count", Review_controllers_1.ReviewControllers.getReviewCount);
+router.get("/:id", 
+//  AuthGurd(UserRole.ADMIN),
+Review_controllers_1.ReviewControllers.GetReviewById);
 // Create review
 router.post("/create", (0, AuthGurd_1.default)(client_1.UserRole.USER, client_1.UserRole.ADMIN), UploadImage_1.UploadImageInServer.single("file"), CloudinaryUpload_1.UploadToCloudinary, (0, validateRequest_1.default)(Review_ZodValidations_1.ReviewSchemas.reviewCreationSchema), Review_controllers_1.ReviewControllers.createReview);
 // update review
@@ -24,10 +30,5 @@ router.patch("/update/:id", (0, AuthGurd_1.default)(client_1.UserRole.USER, clie
 router.delete("/delete/:id", (0, AuthGurd_1.default)(client_1.UserRole.USER), Review_controllers_1.ReviewControllers.deleteReview);
 // update votes
 router.patch("/update-vote/:id", (0, AuthGurd_1.default)(client_1.UserRole.USER), Review_controllers_1.ReviewControllers.updateVotes);
-router.get("/my-reviews", (0, AuthGurd_1.default)(client_1.UserRole.USER, client_1.UserRole.ADMIN), Review_controllers_1.ReviewControllers.getMyReviews);
-router.get("/count", Review_controllers_1.ReviewControllers.getReviewCount);
-router.get("/:id", 
-//  AuthGurd(UserRole.ADMIN),
-Review_controllers_1.ReviewControllers.GetReviewById);
 router.patch("/:reviewId", Review_controllers_1.ReviewControllers.updateReviewStatus);
 exports.ReviewRoutes = router;

@@ -29,7 +29,6 @@ const ApiError_1 = __importDefault(require("../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
 const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const createReview = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    // Find User
     const foundUser = yield prisma_1.default.user.findUnique({
         where: { email: user.email },
     });
@@ -46,7 +45,7 @@ const createReview = (user, payload) => __awaiter(void 0, void 0, void 0, functi
         imageUrl: payload.imageUrl || "",
         RatingSummary: Number(payload.RatingSummary),
         isPublished: (user === null || user === void 0 ? void 0 : user.userRole.toUpperCase()) === "ADMIN" ? true : false,
-        isPremium: (user === null || user === void 0 ? void 0 : user.userRole.toUpperCase()) === "ADMIN" ? true : false,
+        isPremium: (user === null || user === void 0 ? void 0 : user.userRole.toUpperCase()) === "ADMIN" && payload.isPremium ? true : false,
         price: (user === null || user === void 0 ? void 0 : user.userRole.toUpperCase()) === "ADMIN" ? Number(payload.price) : 0,
     };
     // Create the review
@@ -418,6 +417,14 @@ const updateReviewStatus = (reviewId, actionType) => __awaiter(void 0, void 0, v
         return result;
     }
 });
+const getUnpublishedReviews = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    const reviews = yield prisma_1.default.review.findMany({
+        where: {
+            isPublished: false,
+        },
+    });
+    return reviews;
+});
 exports.ReviewServices = {
     createReview,
     getAllReviews,
@@ -428,4 +435,5 @@ exports.ReviewServices = {
     getMyReviewsromDB,
     getReviewCountFromDB,
     updateReviewStatus,
+    getUnpublishedReviews
 };

@@ -118,6 +118,7 @@ const getReviewCount = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const getMyReviews = catchAsync(async (req, res) => {
   const result = await ReviewServices.getMyReviewsromDB(req.user);
 
@@ -141,6 +142,18 @@ const updateReviewStatus = catchAsync(async (req, res) => {
 });
 
 
+const getUnpublishedReviews = catchAsync(async (req, res) => {
+  const result = await ReviewServices.getUnpublishedReviews(req.user);
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "UnPublished Reviews fetchedd Successfully.",
+    data: result,
+  });
+});
+
+
+
 export const ReviewControllers = {
   createReview,
   GetAllReview,
@@ -150,5 +163,6 @@ export const ReviewControllers = {
   deleteReview,
   getReviewCount,
   getMyReviews,
-  updateReviewStatus
+  updateReviewStatus,
+  getUnpublishedReviews
 };
