@@ -8,9 +8,8 @@ import { paginationHelper } from "../../../helpers/paginationHelper";
 
 const createReview = async (
   user: JwtPayload,
-  payload: TReview
+  payload: TReview & {isPremium : boolean}
 ): Promise<Review> => {
-  // Find User
   const foundUser = await prisma.user.findUnique({
     where: { email: user.email },
   });
@@ -27,8 +26,10 @@ const createReview = async (
     imageUrl: payload.imageUrl || "",
     RatingSummary: Number(payload.RatingSummary),
     isPublished: user?.userRole.toUpperCase() === "ADMIN" ? true : false,
-    isPremium: user?.userRole.toUpperCase() === "ADMIN" ? true : false,
+    isPremium: user?.userRole.toUpperCase() === "ADMIN" && payload.isPremium ? true : false,
+
     price: user?.userRole.toUpperCase() === "ADMIN" ? Number(payload.price) : 0,
+
   };
 
   // Create the review
@@ -46,7 +47,6 @@ const createReview = async (
       Comment: true,
     },
   });
-
   return review;
 };
 
@@ -437,6 +437,17 @@ const updateReviewStatus = async (reviewId: string, actionType: string) => {
   }
 };
 
+const getUnpublishedReviews = async (user: JwtPayload) => {
+  const reviews = await prisma.review.findMany({
+    where: {
+      isPublished: false,
+    },
+  });
+
+  return reviews;
+};
+
+
 export const ReviewServices = {
   createReview,
   getAllReviews,
@@ -447,4 +458,5 @@ export const ReviewServices = {
   getMyReviewsromDB,
   getReviewCountFromDB,
   updateReviewStatus,
+  getUnpublishedReviews
 };

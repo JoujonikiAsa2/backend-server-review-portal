@@ -16,6 +16,25 @@ router.get(
   ReviewControllers.GetAllReview
 );
 
+router.get(
+  "/unpublished",
+  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.getUnpublishedReviews
+);
+
+router.get(
+  "/my-reviews",
+  AuthGurd(UserRole.USER, UserRole.ADMIN),
+  ReviewControllers.getMyReviews
+);
+router.get("/count", ReviewControllers.getReviewCount);
+
+router.get(
+  "/:id",
+  //  AuthGurd(UserRole.ADMIN),
+  ReviewControllers.GetReviewById
+);
+
 // Create review
 router.post(
   "/create",
@@ -50,17 +69,6 @@ router.patch(
   ReviewControllers.updateVotes
 );
 
-router.get(
-  "/my-reviews",
-  AuthGurd(UserRole.USER, UserRole.ADMIN),
-  ReviewControllers.getMyReviews
-);
-router.get("/count", ReviewControllers.getReviewCount);
-router.get(
-  "/:id",
-  //  AuthGurd(UserRole.ADMIN),
-  ReviewControllers.GetReviewById
-);
 
 router.patch("/:reviewId", ReviewControllers.updateReviewStatus)
 
