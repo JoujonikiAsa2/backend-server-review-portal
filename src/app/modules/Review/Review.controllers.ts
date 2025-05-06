@@ -39,17 +39,30 @@ const GetAllReview = catchAsync(async (req, res) => {
   });
 });
 
+// const GetReviewById = catchAsync(async (req, res) => {
+//   const result = await ReviewServices.getAllReviewByIdFromDB(req.params.id);
+
+//   sendResponse(res, {
+//     statusCode: status.OK,
+//     success: true,
+//     message: "Review Fetched Successfully.",
+//     data: result,
+//   });
+// });
 const GetReviewById = catchAsync(async (req, res) => {
-  const result = await ReviewServices.getAllReviewByIdFromDB(req.params.id);
+  const { action } = req.query;
+  const result = await ReviewServices.getAllReviewByIdFromDB(
+    req.params.id,
+    action as string
+  );
 
   sendResponse(res, {
-    statusCode: status.OK,
+    statusCode: status.CREATED,
     success: true,
-    message: "Review Fetched Successfully.",
+    message: "Reviews fetched Successfully.",
     data: result,
   });
 });
-
 // Update review
 const updateReview = catchAsync(async (req, res) => {
   const result = await ReviewServices.updateReviewInDB(

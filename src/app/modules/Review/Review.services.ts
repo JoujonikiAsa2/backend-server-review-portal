@@ -145,24 +145,65 @@ const getAllReviews = async (filterData: any, options: any) => {
     data: reviews,
   };
 };
-const getAllReviewByIdFromDB = async (id: string) => {
-  const reviews = await prisma.review.findUnique({
-    where: {
-      id,
-      isPublished: true,
-    },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          imageUrl: true,
+
+// const getAllReviewByIdFromDB = async (id: string) => {
+//   const reviews = await prisma.review.findUnique({
+//     where: {
+//       id,
+//       isPublished: true,
+//     },
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           name: true,
+//           email: true,
+//           imageUrl: true,
+//         },
+//       },
+//     },
+//   });
+
+//   return reviews;
+// };
+const getAllReviewByIdFromDB = async (id: string, action?: string) => {
+  let reviews;
+  console.log("action type", action);
+  if (action) {
+    reviews = await prisma.review.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
         },
       },
-    },
-  });
-
+    });
+  } else {
+    reviews = await prisma.review.findUnique({
+      where: {
+        id,
+        isPublished: true,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            imageUrl: true,
+          },
+        },
+      },
+    });
+  }
+  // console.log("reviews", reviews);
   return reviews;
 };
 
