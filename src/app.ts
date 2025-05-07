@@ -6,29 +6,29 @@ import router from "./app/routes";
 
 const app: Application = express();
 
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5174','https://backend-server-review-portal.vercel.app'];
+// Define allowed origins
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'https://review-protal.vercel.app',
+  'https://backend-server-review-portal.vercel.app'
+];
 
+// Single CORS configuration
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, origin); 
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) {
+      return callback(null, true);
+    }
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, origin);
     } else {
       callback(new Error('The CORS policy does not allow this origin'), false);
     }
   },
-  credentials: true,
-}));
-
-app.use(cors({
-  origin: true, 
   credentials: true
 }));
-// CORS configuration
-app.use(
-  cors({
-    origin: ["http://localhost:3000"],
-  })
-);
 
 app.use(cookieParser());
 
@@ -62,4 +62,3 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 export default app;
-

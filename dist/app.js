@@ -9,25 +9,27 @@ const express_1 = __importDefault(require("express"));
 const globalErrorHandler_1 = __importDefault(require("./app/middleware/globalErrorHandler"));
 const routes_1 = __importDefault(require("./app/routes"));
 const app = (0, express_1.default)();
-const allowedOrigins = ['http://localhost:3000', 'http://localhost:5174', 'https://backend-server-review-portal.vercel.app'];
+// Define allowed origins
+const allowedOrigins = [
+    'http://localhost:3000',
+    'https://review-protal.vercel.app',
+    'https://backend-server-review-portal.vercel.app'
+];
+// Single CORS configuration
 app.use((0, cors_1.default)({
     origin: function (origin, callback) {
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) {
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes(origin)) {
             callback(null, origin);
         }
         else {
             callback(new Error('The CORS policy does not allow this origin'), false);
         }
     },
-    credentials: true,
-}));
-app.use((0, cors_1.default)({
-    origin: true,
     credentials: true
-}));
-// CORS configuration
-app.use((0, cors_1.default)({
-    origin: ["http://localhost:3000"],
 }));
 app.use((0, cookie_parser_1.default)());
 // Parsers
