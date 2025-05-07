@@ -110,10 +110,47 @@ const getAllPaymentsFromDB = () => __awaiter(void 0, void 0, void 0, function* (
     const result = yield prisma_1.default.payment.findMany({});
     return result;
 });
+const popularReviews = () => __awaiter(void 0, void 0, void 0, function* () {
+    const popularReviews = yield prisma_1.default.review.findMany({
+        where: {
+            PremiumPurchaseReview: {
+                some: {}, // only include reviews that have at least one purchase
+            },
+        },
+        include: {
+            PremiumPurchaseReview: {
+                include: {
+                    payment: true,
+                },
+            },
+        },
+    });
+    const result = popularReviews.map((review) => {
+        const purchaseCount = review.PremiumPurchaseReview.length;
+        const totalRevenue = review.PremiumPurchaseReview.reduce((sum, purchase) => { var _a; return sum + (((_a = purchase.payment) === null || _a === void 0 ? void 0 : _a.amount) || 0); }, 0);
+        return {
+            reviewId: review.id,
+            title: review.title,
+            category: review.category,
+            price: review.price,
+            purchaseCount,
+            revenue: totalRevenue,
+        };
+    });
+    result.sort((a, b) => b.purchaseCount - a.purchaseCount);
+    const topReviews = result.slice(0, 10);
+    const totalEarnings = yield prisma_1.default.payment.aggregate({
+        _sum: {
+            amount: true,
+        },
+    });
+    return { topReviews, totalEarnings };
+});
 exports.PaymentServices = {
     createChechoutSession,
     createPaymentInDB,
     getPaymentsByEmail,
     getPaymentById,
     getAllPaymentsFromDB,
+    popularReviews
 };
