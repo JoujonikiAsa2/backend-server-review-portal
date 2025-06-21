@@ -10,6 +10,7 @@ const app: Application = express();
 const allowedOrigins = [
   'http://localhost:3000', 
   'https://review-protal.vercel.app',
+  'https://frontend-review-portal-lilac.vercel.app',
   'https://backend-server-review-portal.vercel.app'
 ];
 
