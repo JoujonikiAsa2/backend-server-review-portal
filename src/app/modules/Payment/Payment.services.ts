@@ -117,10 +117,57 @@ const getAllPaymentsFromDB = async () => {
   return result;
 };
 
+const popularReviews = async () =>{
+  const popularReviews = await prisma.review.findMany({
+    where: {
+      PremiumPurchaseReview: {
+        some: {}, // only include reviews that have at least one purchase
+      },
+    },
+    include: {
+      PremiumPurchaseReview: {
+        include: {
+          payment: true,
+        },
+      },
+    },
+  });
+
+  const result = popularReviews.map((review) => {
+    const purchaseCount = review.PremiumPurchaseReview.length;
+    const totalRevenue = review.PremiumPurchaseReview.reduce(
+      (sum, purchase) => sum + (purchase.payment?.amount || 0),
+      0
+    );
+  
+    return {
+      reviewId: review.id,
+      title: review.title,       
+      category: review.category,   
+      price: review.price,
+      purchaseCount,
+      revenue: totalRevenue,
+    };
+  });
+  
+  result.sort((a, b) => b.purchaseCount - a.purchaseCount);
+  const topReviews = result.slice(0, 10);
+  
+  const totalEarnings = await prisma.payment.aggregate({
+    _sum: {
+      amount: true,
+    },
+  });
+
+  return {topReviews,totalEarnings};
+  
+}
+
 export const PaymentServices = {
   createChechoutSession,
   createPaymentInDB,
   getPaymentsByEmail,
   getPaymentById,
   getAllPaymentsFromDB,
+  popularReviews
 };

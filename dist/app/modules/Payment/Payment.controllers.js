@@ -62,10 +62,20 @@ const getAllPayments = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result,
     });
 }));
+const popularReviews = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield Payment_services_1.PaymentServices.popularReviews();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Popular Review Fetched Successfully.",
+        data: result,
+    });
+}));
 exports.PayementControllers = {
     createCheckoutSession,
     createPayment,
     getMyPayments,
     getPaymentById,
     getAllPayments,
+    popularReviews
 };

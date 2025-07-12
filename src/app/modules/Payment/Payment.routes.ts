@@ -7,6 +7,12 @@ import validateRequest from "../../middleware/validateRequest";
 
 const router = express.Router();
 
+router.get(
+  "/premium-review/count",
+  AuthGurd(UserRole.ADMIN),
+  PayementControllers.popularReviews
+);
+
 router.post(
   "/create-checkout-session",
   PayementControllers.createCheckoutSession

@@ -56,10 +56,21 @@ const getAllPayments = catchAsync(async (req, res) => {
   });
 });
 
+const popularReviews = catchAsync(async (req, res) => {
+  const result = await PaymentServices.popularReviews();
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Popular Review Fetched Successfully.",
+    data: result,
+  });
+});
+
 export const PayementControllers = {
   createCheckoutSession,
   createPayment,
   getMyPayments,
   getPaymentById,
   getAllPayments,
+  popularReviews
 };
